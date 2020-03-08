@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>炸串吧</title>
+    <link th:href="@{/images/title-tiger.png}" rel="icon">
+    <link rel="stylesheet" type="text/css" th:href="@{/plugin/easyui/css/default/easyui.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/plugin/easyui/css/icon.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/plugin/easyui/css/demo.css}">
+    <script type="text/javascript" th:src="@{/plugin/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/plugin/easyui/js/jquery.easyui.min.js}"></script>
+</head>
+<body class="easyui-layout">
+<!--左侧菜单容器-->
+<div data-options="region:'west'" title="导航列表" style="width:150px;">
+    <!--左侧菜单-->
+    <div id="left-menu"></div>
+</div>
+<div data-options="region:'center'">
+    <!--右侧内容-->
+    <div id="pageContent" class="easyui-panel" style="width: 100%;height:100%;" border="false"></div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#left-menu').sidemenu({
+            data: [{
+                text: '点餐',
+                state: 'open',
+                children: [{
+                    text:'订单'
+                },{
+                    text:'账单'
+                }]
+            }],
+            onSelect: function (item) {
+                // console.info(item);
+                if(item.text == '订单'){
+                    // 加载订单页面
+                    $('#pageContent').panel('refresh','order')
+                }else{
+                    // 加载账单页面
+                    $('#pageContent').panel('refresh','bill')
+                }
+            },
+            border: false,
+            width: 147
+        });
+
+    })
+</script>
+</body>
+</html>

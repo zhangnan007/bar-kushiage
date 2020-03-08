@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/plugin/easyui/css/default/easyui.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/plugin/easyui/css/icon.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/plugin/easyui/css/demo.css}">
+    <script type="text/javascript" th:src="@{/plugin/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/plugin/easyui/js/jquery.easyui.min.js}"></script>
+</head>
+<body>
+<style type="text/css">
+    .lines-bottom .datagrid-body td {
+        border-right: 1px dotted transparent;
+    }
+
+    .lines-bottom .datagrid-footer td {
+        border-right: 1px dotted transparent;
+    }
+
+    .order-oper-button {
+        width: 10%;
+        height: 30px;
+        font-weight: bold;
+        margin-top: 2px;
+    }
+
+    .order-oper-goto-pay-button {
+        width: 150px;
+        height: 39px;
+        font-weight: bold;
+        color:#FF7744;
+        position: absolute;
+        right: 35px;
+        display: flex;
+        align-items: center; /*定义body的元素垂直居中*/
+        justify-content: center; /*定义body的里的元素水平居中*/
+    }
+</style>
+<div class="easyui-layout" style="width:100%;height:100%;">
+    <!--左侧已点菜品列表-->
+    <div data-options="region:'west',border:false" style="width: 25%;">
+        <!--已点菜品table-->
+        <table id="selectedFoodTable" style="width:100%;height:100%"></table>
+    </div>
+    <!--右侧展示区-->
+    <div data-options="region:'center',border:false">
+        <!--右侧layout容器-->
+        <div class="easyui-layout" style="width:100%;height:100%;">
+            <!--右侧顶部操作区-->
+            <div data-options="region:'north'" style="width:100%;height:18%;">
+                <div class="easyui-layout" style="width:100%;height:100%;">
+                    <!--操作区-->
+                    <div data-options="region:'north',border:false" style="width:100%;height:62%;background-color: #999999">
+                        <a id="operZeroButId" href="#" class="easyui-linkbutton order-oper-button">0</a>
+                        <a id="operOneButId" href="#" class="easyui-linkbutton order-oper-button">1</a>
+                        <a id="operTwoButId" href="#" class="easyui-linkbutton order-oper-button">2</a>
+                        <a id="operThreeButId" href="#" class="easyui-linkbutton order-oper-button">3</a>
+                        <a id="operFourButId" href="#" class="easyui-linkbutton order-oper-button">4</a>
+                        <a id="operFiveButId" href="#" class="easyui-linkbutton order-oper-button">5</a>
+                        <a id="operSixButId" href="#" class="easyui-linkbutton order-oper-button">6</a>
+                        <a id="operSevenButId" href="#" class="easyui-linkbutton order-oper-button">7</a>
+                        <a id="operEightButId" href="#" class="easyui-linkbutton order-oper-button">8</a>
+                        <a id="operNineButId" href="#" class="easyui-linkbutton order-oper-button">9</a>
+                        <a id="operAddButId" href="#" class="easyui-linkbutton order-oper-button">加</a>
+                        <a id="operRemoveButId" href="#" class="easyui-linkbutton order-oper-button">减</a>
+                        <a id="operClearButId" href="#" class="easyui-linkbutton order-oper-button">清空</a>
+                    </div>
+                    <!--搜索区-->
+                    <div data-options="region:'center',border:false" style="width:100%;display:flex;align-items:center;background-color: #999999">
+                        <input id="searchFoodId" class="easyui-searchbox" style="width:50%;"></input>
+                    </div>
+                </div>
+            </div>
+            <!--菜品列表展示区域-->
+            <div data-options="region:'center'" style="width:100%;height:72%;">
+                <!--菜品类型tabs-->
+                <div id="foodTypeTabId" class="easyui-tabs" style="width:100%;height:100%;"></div>
+            </div>
+            <!--底部结算区域-->
+            <div data-options="region:'south'" style="width:100%;height:10%;display:flex;align-items:center;background-color:#999999;">
+                <a id="goToPayButId" href="#" class="easyui-linkbutton order-oper-goto-pay-button">去结算</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#foodTypeTabId').tabs({
+            border:false,
+            onSelect:function(title){
+                // alert(title+' is selected');
+            }
+        });
+        for (var i=0;i < 3;i++){
+            $('#foodTypeTabId').tabs('add',{
+                title:'全部' + i,
+                href:'food/findListByType?typeId=' + i,
+                selected:false
+            });
+        }
+        $('#searchFoodId').searchbox({
+            searcher:searchByFoodName,
+            prompt:'输入菜品名称首字母查询'
+        });
+        function searchByFoodName(value){
+            alert('You input: ' + value);
+        };
+        var selectedFoods = [
+            {
+                id: 1,
+                name: '金牌肥牛饭磨',
+                num: 100,
+                specs: '甜辣大份',
+                price: 100.80
+            }, {
+                id: 2,
+                name: '奶油蘑菇牛排',
+                num: 1,
+                specs: '份',
+                price: 30.10
+            }
+        ];
+
+        $('#selectedFoodTable').datagrid({
+            data: selectedFoods,
+            fitColumns: true,
+            scrollbarSize: 3,
+            singleSelect: true,
+            showFooter: true,
+            columns: [
+                [
+                    {field: 'id', hidden: true, title: '菜品标识'},
+                    {
+                        width: fixWidth(0.4),
+                        field: 'name',
+                        title: '品名',
+                        align: 'center',
+                        halign: 'center',
+                        resizable: false,
+                        formatter: function (value, row, index) {
+                            if (value.length > 5) {
+                                return '<span title="' + value + '">' + value + '</span>';
+                            } else {
+                                return value;
+                            }
+                        }
+                    },
+                    {
+                        width: fixWidth(0.15),
+                        field: 'num',
+                        align: 'right',
+                        halign: 'center',
+                        resizable: false,
+                        title: '数量'
+                    },
+                    {
+                        width: fixWidth(0.23),
+                        field: 'specs',
+                        align: 'right',
+                        halign: 'center',
+                        resizable: false,
+                        title: '规格',
+                        formatter: function (value, row, index) {
+                            if (value.length > 3) {
+                                return '<span title="' + value + '">' + value + '</span>';
+                            } else {
+                                return value;
+                            }
+                        }
+                    },
+                    {
+                        width: fixWidth(0.22),
+                        field: 'price',
+                        align: 'right',
+                        halign: 'center',
+                        resizable: false,
+                        title: '小计(元)'
+                    }
+                ]
+            ],
+            onLoadSuccess: function (data) {
+                console.log(data);
+                removeTableLines();
+            }
+        });
+        // 合计
+        $('#selectedFoodTable').datagrid('reloadFooter', [
+            {name: '合计：', num: '2条', specs: '3份', price: '￥60.10'}
+        ]);
+
+        // 计算宽度百分比
+        function fixWidth(percent) {
+            return document.body.clientWidth * percent; //这里你可以自己做调整
+        };
+
+        // 设置table只有底线
+        function removeTableLines() {
+            $('#selectedFoodTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+        };
+    })
+
+</script>
+</body>
+</html>
