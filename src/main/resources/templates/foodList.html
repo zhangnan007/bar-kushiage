@@ -7,22 +7,36 @@
 </head>
 <body>
 <style>
-    .order-tabs-food-infos{
+    .order-tabs-food-infos-container{
         display: inline-block;
         margin-top: 10px;
         margin-left: 5px;
         width: 18%;
         height: 100px;
-        line-height: 100px;
-        /*text-align: center;*/
         background-color: #FFFFFF;
         border-radius:5px;
+        position: relative;
+    }
+    .order-tabs-food-infos-name{
+        display: inline-block;
+        margin-top: 2px;
+        text-align: center;
+        font-weight:bold;
+    }
+    .order-tabs-food-infos-price{
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        bottom: 1px;
+        text-align: center;
+        font-weight:bold;
+        color: #FF7744;
     }
 </style>
 <div style="width: 100%;height: 100%;background-color: #999999">
-    <div th:each="food:${foodInfos}" class="order-tabs-food-infos">
-        <!--<span th:text="${food['name']}" style="display: block;top: 5px;background-color: red;height:10%"></span>-->
-        <!--<span th:text="${food['price']}+'/'+${food['specs']}" style="height:10%;display: block;bottom: 5px;background-color: yellow;"></span>-->
+    <div th:each="food:${foodInfos}" class="order-tabs-food-infos-container">
+        <span th:text="${food['name']}" th:title="${food['name']}" class="order-tabs-food-infos-name"></span>
+        <span th:text="${food['price']}+'/'+${food['specs']}" class="order-tabs-food-infos-price"></span>
     </div>
 </div>
 </body>
