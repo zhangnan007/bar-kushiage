@@ -1,9 +1,15 @@
 package com.bar.kushiage.controller;
 
+import com.bar.kushiage.model.vo.FoodTypeVo;
 import com.bar.kushiage.model.vo.FoodVo;
+import com.bar.kushiage.service.FoodService;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +17,37 @@ import java.util.List;
 @Controller
 @RequestMapping("/food")
 public class FoodController {
+    Logger logger = LoggerFactory.getLogger(FoodController.class);
 
+    @Autowired
+    FoodService foodService;
+
+    /**
+     * 获取菜品类型
+     *
+     * @param traceId
+     * @return
+     */
+    @RequestMapping(value = "/findFoodType")
+    public List<FoodTypeVo> getShopAndFoodInfo(String traceId,Model model) {
+        try {
+            logger.info("food controller findFoodType start, traceId: " + traceId);
+            List<FoodTypeVo> types = foodService.findFoodType(traceId);
+            return types;
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return null;
+    }
+
+    /**
+     * 获取菜品信息
+     *
+     * @param foodTypeId
+     * @param model
+     * @return
+     */
     @RequestMapping(value = "/findListByType")
     public String getShopAndFoodInfo(Integer foodTypeId, Model model) {
         List<FoodVo> list = new ArrayList<FoodVo>();
@@ -30,7 +66,7 @@ public class FoodController {
         list.add(vo1);
         list.add(vo2);
         list.add(vo3);
-        model.addAttribute("foodInfos",list);
+        model.addAttribute("foodInfos", list);
         return "foodList";
     }
 

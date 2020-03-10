@@ -5,21 +5,23 @@ import java.util.Date;
 public class Food {
     private Long id;
 
-    private Integer foodTypeId;
+    private Long typeId;
 
-    private String foodName;
+    private String name;
 
-    private Double foodPrice;
+    private String helpCode;
 
-    private String foodMnemonicCode;
+    private String createMan;
+
+    private String remarks;
+
+    private String loseReason;
+
+    private Integer status;
 
     private Date createTime;
 
     private Date modifyTime;
-
-    private Integer status;
-
-    private String remarks;
 
     public Long getId() {
         return id;
@@ -29,36 +31,60 @@ public class Food {
         this.id = id;
     }
 
-    public Integer getFoodTypeId() {
-        return foodTypeId;
+    public Long getTypeId() {
+        return typeId;
     }
 
-    public void setFoodTypeId(Integer foodTypeId) {
-        this.foodTypeId = foodTypeId;
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
     }
 
-    public String getFoodName() {
-        return foodName;
+    public String getName() {
+        return name;
     }
 
-    public void setFoodName(String foodName) {
-        this.foodName = foodName == null ? null : foodName.trim();
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
     }
 
-    public Double getFoodPrice() {
-        return foodPrice;
+    public String getHelpCode() {
+        return helpCode;
     }
 
-    public void setFoodPrice(Double foodPrice) {
-        this.foodPrice = foodPrice;
+    public void setHelpCode(String helpCode) {
+        this.helpCode = helpCode == null ? null : helpCode.trim();
     }
 
-    public String getFoodMnemonicCode() {
-        return foodMnemonicCode;
+    public String getCreateMan() {
+        return createMan;
     }
 
-    public void setFoodMnemonicCode(String foodMnemonicCode) {
-        this.foodMnemonicCode = foodMnemonicCode == null ? null : foodMnemonicCode.trim();
+    public void setCreateMan(String createMan) {
+        this.createMan = createMan == null ? null : createMan.trim();
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks == null ? null : remarks.trim();
+    }
+
+    public String getLoseReason() {
+        return loseReason;
+    }
+
+    public void setLoseReason(String loseReason) {
+        this.loseReason = loseReason == null ? null : loseReason.trim();
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Date getCreateTime() {
@@ -75,21 +101,5 @@ public class Food {
 
     public void setModifyTime(Date modifyTime) {
         this.modifyTime = modifyTime;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public String getRemarks() {
-        return remarks;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks == null ? null : remarks.trim();
     }
 }

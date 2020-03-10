@@ -5,9 +5,11 @@ import java.util.Date;
 public class FoodType {
     private Long id;
 
-    private String typeName;
+    private String name;
 
-    private Integer typeCode;
+    private String remark;
+
+    private String loseReason;
 
     private Integer status;
 
@@ -23,20 +25,28 @@ public class FoodType {
         this.id = id;
     }
 
-    public String getTypeName() {
-        return typeName;
+    public String getName() {
+        return name;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName == null ? null : typeName.trim();
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
     }
 
-    public Integer getTypeCode() {
-        return typeCode;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setTypeCode(Integer typeCode) {
-        this.typeCode = typeCode;
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
+    }
+
+    public String getLoseReason() {
+        return loseReason;
+    }
+
+    public void setLoseReason(String loseReason) {
+        this.loseReason = loseReason == null ? null : loseReason.trim();
     }
 
     public Integer getStatus() {

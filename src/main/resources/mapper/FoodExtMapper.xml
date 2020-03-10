@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bar.kushiage.dao.FoodExtMapper">
+  <resultMap id="FoodVoMap" type="com.bar.kushiage.model.vo.FoodVo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="type_id" jdbcType="BIGINT" property="typeId" />
+    <result column="sort" jdbcType="BIGINT" property="sort" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="help_code" jdbcType="VARCHAR" property="helpCode" />
+    <result column="price" jdbcType="DOUBLE" property="price" />
+    <result column="specs" jdbcType="VARCHAR" property="specs" />
+  </resultMap>
+
+  <select id="selectFoodByTypeId" parameterType="java.lang.Long" resultMap="FoodVoMap">
+    SELECT
+        fo.id,
+        fo.type_id,
+        fo.`name`,
+        fo.help_code,
+        fp.sort,
+        fp.price,
+        fp.specs
+    FROM
+        food_type AS ft
+        LEFT JOIN food AS fo ON ft.id = fo.type_id
+        LEFT JOIN food_price AS fp ON fo.id = fp.food_id
+    WHERE
+        fo.`status` = 1
+        AND fp.`status` = 1
+      <if test="typeId != null">
+            AND ft.id = #{typeId}
+        </if>
+    ORDER BY
+        fp.sort DESC
+  </select>
+
+
+</mapper>
