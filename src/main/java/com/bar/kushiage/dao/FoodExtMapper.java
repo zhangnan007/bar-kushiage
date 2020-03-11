@@ -7,13 +7,6 @@ import java.util.List;
 
 public interface FoodExtMapper {
 
-
-    /**
-     * 获取指定类型的菜品数据，typeId为空时获取全部
-     *
-     * @param typeId
-     * @return
-     */
-    List<FoodVo> selectFoodByTypeId(@Param("typeId") Long typeId);
+    List<FoodVo> selectFoodByTypeId(@Param("typeId") Long typeId, @Param("foodCode") String foodCode);
 
 }

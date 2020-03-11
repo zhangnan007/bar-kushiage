@@ -25,5 +25,5 @@ public interface FoodService {
      * @param traceId
      * @return
      */
-    public List<FoodVo> findFoodByType(Long typeId, String traceId);
+    public List<FoodVo> findFoodByTypeAndCode(Long typeId,String foodCode, String traceId);
 }

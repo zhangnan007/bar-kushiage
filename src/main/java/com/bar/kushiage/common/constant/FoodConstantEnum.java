@@ -1,4 +1,4 @@
-package com.bar.kushiage.common;
+package com.bar.kushiage.common.constant;
 
 /**
  * 菜品相关常量Enum

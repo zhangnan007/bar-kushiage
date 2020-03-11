@@ -1,10 +1,9 @@
 package com.bar.kushiage.service.impl;
 
-import com.bar.kushiage.common.FoodConstantEnum;
+import com.bar.kushiage.common.constant.FoodConstantEnum;
 import com.bar.kushiage.dao.FoodExtMapper;
 import com.bar.kushiage.dao.FoodMapper;
 import com.bar.kushiage.dao.FoodTypeMapper;
-import com.bar.kushiage.model.dto.FoodExample;
 import com.bar.kushiage.model.dto.FoodType;
 import com.bar.kushiage.model.dto.FoodTypeExample;
 import com.bar.kushiage.model.vo.FoodTypeVo;
@@ -56,9 +55,9 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public List<FoodVo> findFoodByType(Long typeId, String traceId) {
+    public List<FoodVo> findFoodByTypeAndCode(Long typeId, String foodCode, String traceId) {
         try {
-            List<FoodVo> foodVos = foodExtMapper.selectFoodByTypeId(typeId);
+            List<FoodVo> foodVos = foodExtMapper.selectFoodByTypeId(typeId,foodCode);
             return foodVos;
         } catch (Exception e) {
             e.printStackTrace();

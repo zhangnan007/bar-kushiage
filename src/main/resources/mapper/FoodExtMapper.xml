@@ -11,7 +11,7 @@
     <result column="specs" jdbcType="VARCHAR" property="specs" />
   </resultMap>
 
-  <select id="selectFoodByTypeId" parameterType="java.lang.Long" resultMap="FoodVoMap">
+  <select id="selectFoodByTypeId" resultMap="FoodVoMap">
     SELECT
         fo.id,
         fo.type_id,
@@ -29,7 +29,10 @@
         AND fp.`status` = 1
       <if test="typeId != null">
             AND ft.id = #{typeId}
-        </if>
+      </if>
+      <if test="foodCode != null">
+            AND fo.help_code LIKE CONCAT('%',#{foodCode},'%')
+      </if>
     ORDER BY
         fp.sort DESC
   </select>

@@ -3,15 +3,14 @@ package com.bar.kushiage.controller;
 import com.bar.kushiage.model.vo.FoodTypeVo;
 import com.bar.kushiage.model.vo.FoodVo;
 import com.bar.kushiage.service.FoodService;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -28,15 +27,17 @@ public class FoodController {
      * @param traceId
      * @return
      */
-    @RequestMapping(value = "/findFoodType")
-    public List<FoodTypeVo> getShopAndFoodInfo(String traceId,Model model) {
+    @RequestMapping(value = "/queryFoodTypes")
+    @ResponseBody
+    public List<FoodTypeVo> queryFoodTypes(String traceId) {
+        // 构造结果集
         try {
             logger.info("food controller findFoodType start, traceId: " + traceId);
             List<FoodTypeVo> types = foodService.findFoodType(traceId);
             return types;
         } catch (Exception e) {
             e.printStackTrace();
-
+            logger.error("food controller findFoodType error,traceId: " + traceId, e);
         }
         return null;
     }
@@ -48,26 +49,18 @@ public class FoodController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "/findListByType")
-    public String getShopAndFoodInfo(Integer foodTypeId, Model model) {
-        List<FoodVo> list = new ArrayList<FoodVo>();
-        FoodVo vo1 = new FoodVo();
-        FoodVo vo2 = new FoodVo();
-        FoodVo vo3 = new FoodVo();
-        vo1.setName("菜品菜品菜品菜品菜品菜品1");
-        vo1.setPrice(30.10);
-        vo1.setSpecs("超大份超大份");
-        vo2.setName("菜品菜品菜品菜品菜品菜品2");
-        vo2.setPrice(30.20);
-        vo2.setSpecs("大份大份大份");
-        vo3.setName("菜品菜品菜品菜品菜品菜品3");
-        vo3.setPrice(30.30);
-        vo3.setSpecs("小份小份小份");
-        list.add(vo1);
-        list.add(vo2);
-        list.add(vo3);
-        model.addAttribute("foodInfos", list);
-        return "foodList";
+    @RequestMapping(value = "/queryFoods")
+    public String queryFoods(String traceId, Long foodTypeId, String foodCode, Model model) {
+        logger.info("food controller findFoodType start, traceId: " + traceId);
+        try {
+            List<FoodVo> foods = foodService.findFoodByTypeAndCode(foodTypeId, foodCode, traceId);
+            model.addAttribute("foods", foods);
+            return "foodList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("food controller queryFoods error,traceId: " + traceId, e);
+        }
+        return null;
     }
 
 }

@@ -2,7 +2,7 @@ spring:
   Profile: dev
 
   datasource:
-    url: jdbc:mysql://localhost:3306/db_bar_kushiage?characterEncoding=utf8
+    url: jdbc:mysql://localhost:3306/db_bar_kushiage?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -28,3 +28,8 @@ logging:
 #  path: D:/nmyslog/nmys
 
 spring.mvc.static-path-pattern: /**
+
+mybatis:
+  configuration:
+    logImpl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
