@@ -87,19 +87,30 @@
     </div>
 </div>
 <script>
+    // 获取选中的菜品
+    function selectFood(obj){
+        console.info(obj);
+        var foodInput = $(obj).children("input")[0].value;
+        console.info(foodInput);
+    };
     $(function () {
+        // 实例化菜品类型tab控件
         $('#foodTypeTabId').tabs({
             border:false,
             onSelect:function(title){
+                // 选中时触发
                 // alert(title+' is selected');
             }
         });
-        // 获取菜品类型
+        // 实例化查询控件
+        $('#searchFoodId').searchbox({
+            searcher:searchByFoodName,
+            prompt:'输入菜品名称首字母查询'
+        });
+        // 获取菜品类型，创建tabs
         $.ajax({
             //请求方式
             type : "POST",
-            //请求的媒体类型
-            // contentType: "application/json;charset=UTF-8",
             //请求地址
             url : "food/queryFoodTypes",
             //数据，json字符串
@@ -108,7 +119,20 @@
             },
             //请求成功
             success : function(result) {
-                console.log(result);
+                $('#foodTypeTabId').tabs('add',{
+                    title:'全部',
+                    href:'food/queryFoodsByTypeAndCode',
+                    selected:true
+                });
+                if(result.length > 0){
+                    for(var index in result){
+                        $('#foodTypeTabId').tabs('add',{
+                            title: result[index].name,
+                            href:'food/queryFoodsByTypeAndCode?foodTypeId=' + result[index].id,
+                            selected:false
+                        });
+                    }
+                }
             },
             //请求失败，包含具体的错误信息
             error : function(e){
@@ -116,17 +140,7 @@
                 console.log(e.responseText);
             }
         });
-        for (var i=0;i < 3;i++){
-            $('#foodTypeTabId').tabs('add',{
-                title:'全部' + i,
-                href:'food/findListByType?typeId=' + i,
-                selected:false
-            });
-        }
-        $('#searchFoodId').searchbox({
-            searcher:searchByFoodName,
-            prompt:'输入菜品名称首字母查询'
-        });
+        // 查询方法
         function searchByFoodName(value){
             alert('You input: ' + value);
         };

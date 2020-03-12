@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>按菜品类型分组菜品列表</title>
+</head>
+<body>
+<style>
+    .order-tab-foods-container{
+        display: inline-block;
+        margin-top: 5px;
+        margin-left: 3px;
+        width: 15%;
+        height: 80px;
+        background-color: #FFFFFF;
+        border-radius:5px;
+        position: relative;
+    }
+    .order-tab-foods-container:hover {
+        background: #eaf2ff;
+        color: #000000;
+        filter: none;
+    }
+    .order-tab-food-name{
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        top: 1px;
+        text-align: center;
+        font-weight:bold;
+        font-size: 18px;
+    }
+    .order-tab-food-price{
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        bottom: 1px;
+        text-align: center;
+        font-weight:bold;
+        color: #FF7744;
+        font-size: 16px;
+    }
+</style>
+<div style="width: 100%;height: 100%;background-color: #999999">
+    <button th:each="food:${foods}" onclick="selectFood(this)" class="order-tab-foods-container">
+        <input type="hidden" th:value="${food['id']}+','+${food['name']}+','+${food['price']}+','+${food['specs']}" />
+        <span th:text="${food['name']}" th:title="${food['name']}" class="order-tab-food-name"></span>
+        <span th:text="${food['price']}+'/'+${food['specs']}" class="order-tab-food-price"></span>
+    </button>
+</div>
+</body>
+</html>

@@ -6,7 +6,7 @@
     <result column="type_id" jdbcType="BIGINT" property="typeId" />
     <result column="sort" jdbcType="BIGINT" property="sort" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="help_code" jdbcType="VARCHAR" property="helpCode" />
+    <result column="help_code" jdbcType="VARCHAR" property="code" />
     <result column="price" jdbcType="DOUBLE" property="price" />
     <result column="specs" jdbcType="VARCHAR" property="specs" />
   </resultMap>

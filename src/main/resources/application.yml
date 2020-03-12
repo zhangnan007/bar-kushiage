@@ -1,6 +1,9 @@
 spring:
   Profile: dev
 
+  mvc:
+    static-path-pattern: /**
+
   datasource:
     url: jdbc:mysql://localhost:3306/db_bar_kushiage?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
@@ -25,9 +28,6 @@ server:
 
 logging:
   config: classpath:logback-spring.xml
-#  path: D:/nmyslog/nmys
-
-spring.mvc.static-path-pattern: /**
 
 mybatis:
   configuration:

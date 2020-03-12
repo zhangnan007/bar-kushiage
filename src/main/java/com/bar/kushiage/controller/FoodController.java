@@ -49,18 +49,17 @@ public class FoodController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "/queryFoods")
-    public String queryFoods(String traceId, Long foodTypeId, String foodCode, Model model) {
+    @RequestMapping(value = "/queryFoodsByTypeAndCode")
+    public String queryFoodsByTypeAndCode(String traceId, Long foodTypeId, String foodCode, Model model) {
         logger.info("food controller findFoodType start, traceId: " + traceId);
         try {
             List<FoodVo> foods = foodService.findFoodByTypeAndCode(foodTypeId, foodCode, traceId);
             model.addAttribute("foods", foods);
-            return "foodList";
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("food controller queryFoods error,traceId: " + traceId, e);
         }
-        return null;
+        return "foods";
     }
 
 }
