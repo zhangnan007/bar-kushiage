@@ -77,7 +77,7 @@
             <!--菜品列表展示区域-->
             <div data-options="region:'center'" style="width:100%;height:72%;">
                 <!--菜品类型tabs-->
-                <div id="foodTypeTabId" class="easyui-tabs" style="width:100%;height:100%;"></div>
+                <div id="foodTypeTabsId" class="easyui-tabs" style="width:100%;height:100%;"></div>
             </div>
             <!--底部结算区域-->
             <div data-options="region:'south'" style="width:100%;height:10%;display:flex;align-items:center;background-color:#999999;">
@@ -87,24 +87,51 @@
     </div>
 </div>
 <script>
+    // 已选菜品数据
+    var selectedFoodData = [];
+    // 已选菜品合计数据
+    var selectedFoodSum = [];
     // 获取选中的菜品
     function selectFood(obj){
-        console.info(obj);
-        var foodInput = $(obj).children("input")[0].value;
-        console.info(foodInput);
+        // 获取选中菜品信息
+        var selectedFood = $(obj).children("input")[0].value.split(",");
+        var selected = new Object();
+        selected.id = selectedFood[0];
+        selected.name = selectedFood[1];
+        selected.price = selectedFood[2];
+        selected.specs = selectedFood[3];
+        selected.num = 1;
+        // 同步维护已选菜品列表数据
+        selectedFoodData.push(selected);
+        // 同步维护合计数据
+        selectedFoodSum[0].num += 1;
+        selectedFoodSum[0].specs += 1;
+        selectedFoodSum[0].num += 1;
+        selectedFoodSum[0].price = (selectedFoodTableSum[0].price + selected.price).toFixed(2);
+        // 向已选菜品列表表格中追加一行菜品数据
+        $('#dg').datagrid('appendRow',selected);
+        // 重新加载底部合计行
+        $('#selectedFoodTable').datagrid('reloadFooter', selectedFoodSum);
+            // [{name: '合计：', num: '2条', specs: '3份', price: '￥60.10'}]);
+    };
+    // 搜索框搜索方法
+    function searchByFoodCode(value){
+        var tab = $('#foodTypeTabsId').tabs('getSelected');  // get selected panel
+        $('#foodTypeTabsId').tabs('update', {
+            tab: tab,
+            options: {
+                href: 'food/queryFoodsByTypeAndCode?foodCode=' + value,
+            }
+        });
     };
     $(function () {
         // 实例化菜品类型tab控件
-        $('#foodTypeTabId').tabs({
+        $('#foodTypeTabsId').tabs({
             border:false,
-            onSelect:function(title){
-                // 选中时触发
-                // alert(title+' is selected');
-            }
         });
         // 实例化查询控件
         $('#searchFoodId').searchbox({
-            searcher:searchByFoodName,
+            searcher:searchByFoodCode,
             prompt:'输入菜品名称首字母查询'
         });
         // 获取菜品类型，创建tabs
@@ -120,6 +147,7 @@
             //请求成功
             success : function(result) {
                 $('#foodTypeTabId').tabs('add',{
+                    id:0,
                     title:'全部',
                     href:'food/queryFoodsByTypeAndCode',
                     selected:true
@@ -127,6 +155,7 @@
                 if(result.length > 0){
                     for(var index in result){
                         $('#foodTypeTabId').tabs('add',{
+                            id:result[index].id,
                             title: result[index].name,
                             href:'food/queryFoodsByTypeAndCode?foodTypeId=' + result[index].id,
                             selected:false
@@ -140,28 +169,8 @@
                 console.log(e.responseText);
             }
         });
-        // 查询方法
-        function searchByFoodName(value){
-            alert('You input: ' + value);
-        };
-        var selectedFoods = [
-            {
-                id: 1,
-                name: '金牌肥牛饭磨',
-                num: 100,
-                specs: '甜辣大份',
-                price: 100.80
-            }, {
-                id: 2,
-                name: '奶油蘑菇牛排',
-                num: 1,
-                specs: '份',
-                price: 30.10
-            }
-        ];
-
         $('#selectedFoodTable').datagrid({
-            data: selectedFoods,
+            data: selectedFoodTableData,
             fitColumns: true,
             scrollbarSize: 3,
             singleSelect: true,
@@ -222,10 +231,6 @@
                 removeTableLines();
             }
         });
-        // 合计
-        $('#selectedFoodTable').datagrid('reloadFooter', [
-            {name: '合计：', num: '2条', specs: '3份', price: '￥60.10'}
-        ]);
 
         // 计算宽度百分比
         function fixWidth(percent) {
