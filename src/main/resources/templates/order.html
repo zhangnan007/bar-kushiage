@@ -31,7 +31,7 @@
         width: 150px;
         height: 39px;
         font-weight: bold;
-        color:#FF7744;
+        color: #FF7744;
         position: absolute;
         right: 35px;
         display: flex;
@@ -53,23 +53,25 @@
             <div data-options="region:'north'" style="width:100%;height:18%;">
                 <div class="easyui-layout" style="width:100%;height:100%;">
                     <!--操作区-->
-                    <div data-options="region:'north',border:false" style="width:100%;height:62%;background-color: #999999">
-                        <a id="operZeroButId" href="#" class="easyui-linkbutton order-oper-button">0</a>
-                        <a id="operOneButId" href="#" class="easyui-linkbutton order-oper-button">1</a>
-                        <a id="operTwoButId" href="#" class="easyui-linkbutton order-oper-button">2</a>
-                        <a id="operThreeButId" href="#" class="easyui-linkbutton order-oper-button">3</a>
-                        <a id="operFourButId" href="#" class="easyui-linkbutton order-oper-button">4</a>
-                        <a id="operFiveButId" href="#" class="easyui-linkbutton order-oper-button">5</a>
-                        <a id="operSixButId" href="#" class="easyui-linkbutton order-oper-button">6</a>
-                        <a id="operSevenButId" href="#" class="easyui-linkbutton order-oper-button">7</a>
-                        <a id="operEightButId" href="#" class="easyui-linkbutton order-oper-button">8</a>
-                        <a id="operNineButId" href="#" class="easyui-linkbutton order-oper-button">9</a>
-                        <a id="operAddButId" href="#" class="easyui-linkbutton order-oper-button">加</a>
-                        <a id="operRemoveButId" href="#" class="easyui-linkbutton order-oper-button">减</a>
-                        <a id="operClearButId" href="#" class="easyui-linkbutton order-oper-button">清空</a>
+                    <div data-options="region:'north',border:false"
+                         style="width:100%;height:62%;background-color: #999999">
+                        <input class="operate-button" type="button" value="0"/>
+                        <input class="operate-button" type="button" value="1"/>
+                        <input class="operate-button" type="button" value="2"/>
+                        <input class="operate-button" type="button" value="3"/>
+                        <input class="operate-button" type="button" value="4"/>
+                        <input class="operate-button" type="button" value="5"/>
+                        <input class="operate-button" type="button" value="6"/>
+                        <input class="operate-button" type="button" value="7"/>
+                        <input class="operate-button" type="button" value="8"/>
+                        <input class="operate-button" type="button" value="9"/>
+                        <input class="operate-button" type="button" value="加"/>
+                        <input class="operate-button" type="button" value="减"/>
+                        <input class="operate-button" type="button" value="清空"/>
                     </div>
                     <!--搜索区-->
-                    <div data-options="region:'center',border:false" style="width:100%;display:flex;align-items:center;background-color: #999999">
+                    <div data-options="region:'center',border:false"
+                         style="width:100%;display:flex;align-items:center;background-color: #999999">
                         <input id="searchFoodId" class="easyui-searchbox" style="width:50%;"></input>
                     </div>
                 </div>
@@ -80,7 +82,8 @@
                 <div id="foodTypeTabsId" class="easyui-tabs" style="width:100%;height:100%;"></div>
             </div>
             <!--底部结算区域-->
-            <div data-options="region:'south'" style="width:100%;height:10%;display:flex;align-items:center;background-color:#999999;">
+            <div data-options="region:'south'"
+                 style="width:100%;height:10%;display:flex;align-items:center;background-color:#999999;">
                 <a id="goToPayButId" href="#" class="easyui-linkbutton order-oper-goto-pay-button">去结算</a>
             </div>
         </div>
@@ -91,8 +94,30 @@
     var selectedFoodData = [];
     // 已选菜品合计数据
     var selectedFoodSum = [];
+    // 操作区按钮点击事件
+    $('.operate-button').bind('click', function () {
+        var operVal = $.trim($(this).val());
+        alter(operVal);
+        if (operVal == '清空') {
+            // 清空已选菜品数据容器
+            for (var i = 0; i < selectedFoodData.length; i++) {
+                delete selectedFoodData[i];
+            }
+            // 清空已选菜品合计数据容器
+            delete selectedFoodSum[0];
+            // 清空已选菜品表格
+            $('#selectedFoodTable').datagrid('loadData', selectedFoodData);
+            // 清空已选菜品合计区域
+            $('#selectedFoodTable').datagrid('reloadFooter', selectedFoodSum);
+        } else if (operVal == '减') {
+
+        } else if (operVal == '加') {
+
+        }
+    })
+
     // 获取选中的菜品
-    function selectFood(obj){
+    function selectFood(obj) {
         // 获取选中菜品信息
         var selectedFood = $(obj).children("input")[0].value.split(",");
         var selected = new Object();
@@ -109,13 +134,14 @@
         selectedFoodSum[0].num += 1;
         selectedFoodSum[0].price = (selectedFoodTableSum[0].price + selected.price).toFixed(2);
         // 向已选菜品列表表格中追加一行菜品数据
-        $('#dg').datagrid('appendRow',selected);
+        $('#selectedFoodTable').datagrid('appendRow', selected);
         // 重新加载底部合计行
         $('#selectedFoodTable').datagrid('reloadFooter', selectedFoodSum);
-            // [{name: '合计：', num: '2条', specs: '3份', price: '￥60.10'}]);
+        // [{name: '合计：', num: '2条', specs: '3份', price: '￥60.10'}]);
     };
+
     // 搜索框搜索方法
-    function searchByFoodCode(value){
+    function searchByFoodCode(value) {
         var tab = $('#foodTypeTabsId').tabs('getSelected');  // get selected panel
         $('#foodTypeTabsId').tabs('update', {
             tab: tab,
@@ -127,44 +153,44 @@
     $(function () {
         // 实例化菜品类型tab控件
         $('#foodTypeTabsId').tabs({
-            border:false,
+            border: false,
         });
         // 实例化查询控件
         $('#searchFoodId').searchbox({
-            searcher:searchByFoodCode,
-            prompt:'输入菜品名称首字母查询'
+            searcher: searchByFoodCode,
+            prompt: '输入菜品名称首字母查询'
         });
         // 获取菜品类型，创建tabs
         $.ajax({
             //请求方式
-            type : "POST",
+            type: "POST",
             //请求地址
-            url : "food/queryFoodTypes",
+            url: "food/queryFoodTypes",
             //数据，json字符串
-            data : {
-                traceId:111
+            data: {
+                traceId: 111
             },
             //请求成功
-            success : function(result) {
-                $('#foodTypeTabId').tabs('add',{
-                    id:0,
-                    title:'全部',
-                    href:'food/queryFoodsByTypeAndCode',
-                    selected:true
+            success: function (result) {
+                $('#foodTypeTabId').tabs('add', {
+                    id: 0,
+                    title: '全部',
+                    href: 'food/queryFoodsByTypeAndCode',
+                    selected: true
                 });
-                if(result.length > 0){
-                    for(var index in result){
-                        $('#foodTypeTabId').tabs('add',{
-                            id:result[index].id,
+                if (result.length > 0) {
+                    for (var index in result) {
+                        $('#foodTypeTabId').tabs('add', {
+                            id: result[index].id,
                             title: result[index].name,
-                            href:'food/queryFoodsByTypeAndCode?foodTypeId=' + result[index].id,
-                            selected:false
+                            href: 'food/queryFoodsByTypeAndCode?foodTypeId=' + result[index].id,
+                            selected: false
                         });
                     }
                 }
             },
             //请求失败，包含具体的错误信息
-            error : function(e){
+            error: function (e) {
                 console.log(e.status);
                 console.log(e.responseText);
             }
