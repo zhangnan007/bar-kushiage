@@ -41,7 +41,7 @@
 </style>
 <div class="easyui-layout" style="width:100%;height:100%;">
     <!--左侧已点菜品列表-->
-    <div data-options="region:'west',border:false" style="width: 25%;">
+    <div data-options="region:'west',border:false" style="width: 28%;">
         <!--已点菜品table-->
         <table id="selectedFoodTable" style="width:100%;height:100%"></table>
     </div>
@@ -79,7 +79,7 @@
             <!--菜品列表展示区域-->
             <div data-options="region:'center'" style="width:100%;height:72%;">
                 <!--菜品类型tabs-->
-                <div id="foodTypeTabsId" class="easyui-tabs" style="width:100%;height:100%;"></div>
+                <div id="foodTypeTabId" class="easyui-tabs" style="width:100%;height:100%;"></div>
             </div>
             <!--底部结算区域-->
             <div data-options="region:'south'"
@@ -90,14 +90,10 @@
     </div>
 </div>
 <script>
-    // 已选菜品数据
-    var selectedFoodData = [];
-    // 已选菜品合计数据
-    var selectedFoodSum = [];
     // 操作区按钮点击事件
     $('.operate-button').bind('click', function () {
         var operVal = $.trim($(this).val());
-        alter(operVal);
+        console.info(operVal);
         if (operVal == '清空') {
             // 清空已选菜品数据容器
             for (var i = 0; i < selectedFoodData.length; i++) {
@@ -114,160 +110,234 @@
         } else if (operVal == '加') {
 
         }
-    })
-
-    // 获取选中的菜品
-    function selectFood(obj) {
+    });
+    // 设置table只有底线
+    function removeTableLines() {
+        $('#selectedFoodTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+    };
+    // 实例化已选菜品表格控件
+    var selectedFoodTable = $('#selectedFoodTable').datagrid({
+        data: [],
+        fitColumns: true,
+        scrollbarSize: 13,
+        singleSelect: true,
+        showFooter: true,
+        columns: [
+            [
+                {field: 'id', hidden: true, title: '菜品标识'},
+                {
+                    width: fixWidth(0.4),
+                    field: 'name',
+                    title: '品名',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false,
+                    formatter: function (value, row, index) {
+                        if (value.length > 5) {
+                            return '<span title="' + value + '">' + value + '</span>';
+                        } else {
+                            return value;
+                        }
+                    }
+                },
+                {
+                    width: fixWidth(0.15),
+                    field: 'num',
+                    align: 'right',
+                    halign: 'center',
+                    resizable: false,
+                    title: '数量'
+                },
+                {
+                    width: fixWidth(0.23),
+                    field: 'specs',
+                    align: 'right',
+                    halign: 'center',
+                    resizable: false,
+                    title: '规格',
+                    formatter: function (value, row, index) {
+                        if (value.length > 3) {
+                            return '<span title="' + value + '">' + value + '</span>';
+                        } else {
+                            return value;
+                        }
+                    }
+                },
+                {
+                    width: fixWidth(0.22),
+                    field: 'price',
+                    align: 'right',
+                    halign: 'center',
+                    resizable: false,
+                    title: '小计(元)'
+                }
+            ]
+        ],
+        onLoadSuccess: function (data) {
+            // 删除已选菜品列表分隔线样式
+            removeTableLines();
+        }
+    });
+    // 获取选中的菜品并同步更新到已选菜品表格中
+    function getSelectToFoodsTable(obj) {
         // 获取选中菜品信息
         var selectedFood = $(obj).children("input")[0].value.split(",");
+        // 构造已选菜品数据
         var selected = new Object();
-        selected.id = selectedFood[0];
+        selected.id = selectedFood[0] + "," + selectedFood[3];
         selected.name = selectedFood[1];
-        selected.price = selectedFood[2];
-        selected.specs = selectedFood[3];
         selected.num = 1;
-        // 同步维护已选菜品列表数据
-        selectedFoodData.push(selected);
-        // 同步维护合计数据
-        selectedFoodSum[0].num += 1;
-        selectedFoodSum[0].specs += 1;
-        selectedFoodSum[0].num += 1;
-        selectedFoodSum[0].price = (selectedFoodTableSum[0].price + selected.price).toFixed(2);
-        // 向已选菜品列表表格中追加一行菜品数据
-        $('#selectedFoodTable').datagrid('appendRow', selected);
+        selected.specs = selectedFood[3];
+        selected.price = selectedFood[2];
+        // 获取已选菜品列表数据
+        var tableData = selectedFoodTable.datagrid('getData');
+        // 获取表格合计数据
+        var footerRows = selectedFoodTable.datagrid('getFooterRows');
+        var tableRows = tableData.rows;
+        // 操作表格数据下标
+        var operTableIndex = 0;
+        if(tableRows.length <= 0){
+            // 构造已选菜品初始数据结构
+            var selectedFoodData = [];
+            selectedFoodData.push(selected);
+            // 首次添加重新加载数据
+            selectedFoodTable.datagrid('loadData',selectedFoodData);
+        } else {
+            // 是否不重复
+            var isNotRepeat = true;
+            // 非首次添加判断是否重复
+            for(var index = 0;index < tableRows.length;index++){
+                if(tableRows[index].id == selected.id){
+                    // 累加菜品价格
+                    var newPrice =  new Number(new Number(tableRows[index].price) + new Number(selected.price)).toFixed(2);
+                    console.info("new price");
+                    console.info(newPrice);
+                    // 如果有重复的菜品就把数量加一
+                    selectedFoodTable.datagrid('updateRow',{
+                        index: index,
+                        row: {
+                            num: new Number(tableRows[index].num) + 1,
+                            price: newPrice
+                        }
+                    });
+                    operTableIndex = index;
+                    isNotRepeat = false;
+                    break;
+                }
+            }
+            if(isNotRepeat){
+                // 追加一条新数据
+                selectedFoodTable.datagrid('appendRow', selected);
+                operTableIndex = tableData.rows.length - 1;
+            }
+        }
+        if(operTableIndex > 13){
+            // 滚动到当前行
+            selectedFoodTable.datagrid('scrollTo',operTableIndex);
+        }
+        // 高亮显示该行
+        // selectedFoodTable.datagrid('highlightRow',operTableIndex);
+        // 选中当前行,后续修改数量用
+        selectedFoodTable.datagrid('selectRow',operTableIndex);
+        // 获取表格合计数据
+        var footerRows = selectedFoodTable.datagrid('getFooterRows');
+        console.info(footerRows)
+        if(typeof(footerRows) == 'undefined'){
+            // 首次直接添加
+            footerRows[0][]
+        } else {
+
+        }
+        $('#selectedFoodTable').datagrid('reloadFooter');
+        // footerRows[0]['name'] = 'new name';
+        // footerRows[0]['salary'] = 60000;
+        if (selectedFoodSum.length > 0) {
+            selectedFoodSum[0].num += 1;
+            selectedFoodSum[0].specs += 1;
+            selectedFoodSum[0].price = new Number(new Number(selectedFoodSum[0].price) + new Number(selected.price)).toFixed(2);
+        } else {
+            var selectedSum = new Object();
+            selectedSum.name = "合计：";
+            selectedSum.num = 1;
+            selectedSum.specs = 1;
+            selectedSum.price = selected.price;
+            selectedFoodSum.push(selectedSum);
+        }
         // 重新加载底部合计行
-        $('#selectedFoodTable').datagrid('reloadFooter', selectedFoodSum);
-        // [{name: '合计：', num: '2条', specs: '3份', price: '￥60.10'}]);
+        $('#selectedFoodTable').datagrid('reloadFooter',
+            [{
+                name: '合计：',
+                num: selectedFoodSum[0].num + '条',
+                specs: selectedFoodSum[0].specs + '份',
+                price: '￥' + selectedFoodSum[0].price
+            }]
+        )
     };
 
     // 搜索框搜索方法
     function searchByFoodCode(value) {
-        var tab = $('#foodTypeTabsId').tabs('getSelected');  // get selected panel
-        $('#foodTypeTabsId').tabs('update', {
+        var tab = $('#foodTypeTabId').tabs('getSelected');  // get selected panel
+        $('#foodTypeTabId').tabs('update', {
             tab: tab,
             options: {
                 href: 'food/queryFoodsByTypeAndCode?foodCode=' + value,
             }
         });
     };
-    $(function () {
-        // 实例化菜品类型tab控件
-        $('#foodTypeTabsId').tabs({
-            border: false,
-        });
-        // 实例化查询控件
-        $('#searchFoodId').searchbox({
-            searcher: searchByFoodCode,
-            prompt: '输入菜品名称首字母查询'
-        });
-        // 获取菜品类型，创建tabs
-        $.ajax({
-            //请求方式
-            type: "POST",
-            //请求地址
-            url: "food/queryFoodTypes",
-            //数据，json字符串
-            data: {
-                traceId: 111
-            },
-            //请求成功
-            success: function (result) {
-                $('#foodTypeTabId').tabs('add', {
-                    id: 0,
-                    title: '全部',
-                    href: 'food/queryFoodsByTypeAndCode',
-                    selected: true
-                });
-                if (result.length > 0) {
-                    for (var index in result) {
-                        $('#foodTypeTabId').tabs('add', {
-                            id: result[index].id,
-                            title: result[index].name,
-                            href: 'food/queryFoodsByTypeAndCode?foodTypeId=' + result[index].id,
-                            selected: false
-                        });
-                    }
+
+    // 计算宽度百分比
+    function fixWidth(percent) {
+        return document.body.clientWidth * percent; //这里你可以自己做调整
+    };
+    // 实例化菜品类型tab控件
+    $('#foodTypeTabId').tabs({
+        border: false,
+    });
+    // 实例化查询控件
+    $('#searchFoodId').searchbox({
+        searcher: searchByFoodCode,
+        prompt: '输入菜品名称首字母查询'
+    });
+    // 获取菜品类型，创建tabs
+    $.ajax({
+        //请求方式
+        type: "POST",
+        //请求地址
+        url: "food/queryFoodTypes",
+        //数据，json字符串
+        data: {
+            traceId: 111
+        },
+        //请求成功
+        success: function (result) {
+            $('#foodTypeTabId').tabs('add', {
+                id: 0,
+                title: '全部',
+                href: 'food/queryFoodsByTypeAndCode',
+                selected: true
+            });
+            if (result.length > 0) {
+                for (var index in result) {
+                    $('#foodTypeTabId').tabs('add', {
+                        id: result[index].id,
+                        title: result[index].name,
+                        href: 'food/queryFoodsByTypeAndCode?foodTypeId=' + result[index].id,
+                        selected: false
+                    });
                 }
-            },
-            //请求失败，包含具体的错误信息
-            error: function (e) {
-                console.log(e.status);
-                console.log(e.responseText);
             }
-        });
-        $('#selectedFoodTable').datagrid({
-            data: selectedFoodTableData,
-            fitColumns: true,
-            scrollbarSize: 3,
-            singleSelect: true,
-            showFooter: true,
-            columns: [
-                [
-                    {field: 'id', hidden: true, title: '菜品标识'},
-                    {
-                        width: fixWidth(0.4),
-                        field: 'name',
-                        title: '品名',
-                        align: 'center',
-                        halign: 'center',
-                        resizable: false,
-                        formatter: function (value, row, index) {
-                            if (value.length > 5) {
-                                return '<span title="' + value + '">' + value + '</span>';
-                            } else {
-                                return value;
-                            }
-                        }
-                    },
-                    {
-                        width: fixWidth(0.15),
-                        field: 'num',
-                        align: 'right',
-                        halign: 'center',
-                        resizable: false,
-                        title: '数量'
-                    },
-                    {
-                        width: fixWidth(0.23),
-                        field: 'specs',
-                        align: 'right',
-                        halign: 'center',
-                        resizable: false,
-                        title: '规格',
-                        formatter: function (value, row, index) {
-                            if (value.length > 3) {
-                                return '<span title="' + value + '">' + value + '</span>';
-                            } else {
-                                return value;
-                            }
-                        }
-                    },
-                    {
-                        width: fixWidth(0.22),
-                        field: 'price',
-                        align: 'right',
-                        halign: 'center',
-                        resizable: false,
-                        title: '小计(元)'
-                    }
-                ]
-            ],
-            onLoadSuccess: function (data) {
-                console.log(data);
-                removeTableLines();
-            }
-        });
+        },
+        //请求失败，包含具体的错误信息
+        error: function (e) {
+            console.log(e.status);
+            console.log(e.responseText);
+        }
+    });
 
-        // 计算宽度百分比
-        function fixWidth(percent) {
-            return document.body.clientWidth * percent; //这里你可以自己做调整
-        };
-
-        // 设置table只有底线
-        function removeTableLines() {
-            $('#selectedFoodTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
-        };
-    })
+    // 计算宽度百分比
+    function fixWidth(percent) {
+        return document.body.clientWidth * percent; //这里你可以自己做调整
+    };
 
 </script>
 </body>

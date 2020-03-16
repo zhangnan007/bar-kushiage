@@ -43,11 +43,11 @@
     }
 </style>
 <div style="width: 100%;height: 100%;background-color: #999999">
-    <input type="button" th:each="food:${foods}" onclick="selectFood(this)" class="order-tab-foods-container">
+    <button th:each="food:${foods}" onclick="getSelectToFoodsTable(this)" class="order-tab-foods-container">
         <input type="hidden" th:value="${food['id']}+','+${food['name']}+','+${food['price']}+','+${food['specs']}" />
-        <span th:text="${food['name']}" th:title="${food['name']}" class="order-tab-food-name"></span>
+        <span th:text="${food['name']}" class="order-tab-food-name"></span>
         <span th:text="${food['price']}+'/'+${food['specs']}" class="order-tab-food-price"></span>
-    </input>
+    </button>
 </div>
 </body>
 </html>
