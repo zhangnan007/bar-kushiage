@@ -11,6 +11,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/order").setViewName("order");
+        registry.addViewController("/toPay").setViewName("pay");
         registry.addViewController("/bill").setViewName("bill");
     }
 }
