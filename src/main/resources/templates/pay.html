@@ -1,10 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-<h1>pay page</h1>
+<style>
+    /*支付金额按钮操作区*/
+    .pay-num-oper{
+        position: absolute;
+        right: 2px;
+        width: 230px;
+        height: 170px;
+        bottom: 2px;
+    }
+    .pay-num-oper-table{
+        width: 100%;
+        height: 100%;
+    }
+    .pay-num-oper-table input{
+        width: 100%;
+        height: 100%;
+        border-color: #95B8E7;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #FFFFFF;
+    }
+    /*以下为覆盖原有组件样式*/
+    .radiobutton-inner{
+        background: #95B8E7 !important;
+    }
+    .radiobutton{
+        border: 2px solid #95B8E7 !important;
+    }
+</style>
+<!--结算页面容器-->
+<div class="easyui-layout" style="width:100%;height:100%;">
+    <!--结算左侧内容容器-->
+    <div data-options="region:'west',border:false,split:false" style="width:35%">
+        <div class="easyui-layout" style="width:100%;height:100%;">
+            <!--支付状态概览区域-->
+            <div data-options="region:'north',split:false" style="width:100%;height:23%;background-color: #E8E9DE;">
+                this is north
+            </div>
+            <!--支付记录表格区域-->
+            <div data-options="region:'center',border:false,split:false" style="background-color: #EFEEEB">
+                <!--支付记录table-->
+                <table id="payLogTableId" title="支付金额记录" style="width:100%;height:100%"></table>
+            </div>
+            <!--完成结账按钮区域-->
+            <div data-options="region:'south',border:false,split:false" style="width:100%;height: 9%">
+                <button style="width:100%;height:100%;background-color: #CC6552;color: #F5F1EF;">完成结账</button>
+            </div>
+        </div>
+    </div>
+        <!--结算右侧内容容器-->
+    <div data-options="region:'center',border:false,split:false" style="background-color: #E9E6E2">
+       <div style="height: 30%;position: absolute;width: 100%;bottom: 251px;">
+           <div style="width: 100%;height: 35px;display: flex;align-items: center;position: relative;">
+               <span style="position: absolute;left: 45%;">找零金额</span>
+               <span style="position: absolute;right: 5%;font-weight: bold;">￥ 0.00</span>
+           </div>
+           <div style="width: 100%;height: 56px;display: flex;align-items: center;justify-content: center;">
+               <div style="width: 95%;position: relative;border: 1px solid #95B8E7;height: 55px;border-radius: 5px;background-color: #FFFFFF;">
+                   <span style="margin-left:10px;width: 30%;line-height: 55px;">支付金额：</span>
+                   <span style="right:2%;position: absolute;font-weight: bold;line-height: 55px;">￥ 0.00</span>
+               </div>
+           </div>
+           <div style="width: 100%;display: flex;align-items: center;justify-content: center;margin-top:5%;">
+                <form id="payTypeFormId">
+                    <input data-options="labelWidth:50,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="aliPay" label="支付宝">
+                    <input data-options="labelWidth:33,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="weChat" label="微信">
+                    <input data-options="labelWidth:33,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="cash" label="现金">
+                    <input data-options="labelWidth:50,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="bankCard" label="银行卡">
+                    <input data-options="labelWidth:33,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="reduction" label="减免">
+                    <input data-options="labelWidth:33,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="others" label="其他">
+                </form>
+           </div>
+       </div>
+        <!--支付金额操作按钮区-->
+       <div id="payNumOperId" class="pay-num-oper">
+           <table class="pay-num-oper-table">
+               <tr>
+                   <td><input type="button" value=" 7 " /></td>
+                   <td><input type="button" value="8" /></td>
+                   <td><input type="button" value=" 9 " /></td>
+                   <td colspan="2"><input type="button" value="C" /></td>
+               </tr>
+               <tr>
+                   <td><input type="button" value=" 4 " /></td>
+                   <td><input type="button" value="5" /></td>
+                   <td><input type="button" value=" 6 " /></td>
+                   <td colspan="2"><input type="button" value="<—" /></td>
+               </tr>
+               <tr>
+                   <td><input type="button" value=" 1 " /></td>
+                   <td><input type="button" value="2" /></td>
+                   <td><input type="button" value=" 3 " /></td>
+                   <td colspan="2" rowspan="2" ><input type="button" value="确定" /></td>
+               </tr>
+               <tr>
+                   <td><input type="button" value=" 0 " /></td>
+                   <td><input type="button" value="00" /></td>
+                   <td><input type="button" value=" · " /></td>
+               </tr>
+           </table>
+       </div>
+    </div>
+</div>
+<script>
+    var tableData = [
+        {payType:'支付宝',payPrice:'￥189.56'},
+        {payType:'银行卡',payPrice:'￥189.56'},
+        {payType:'微信',payPrice:'￥189.56'}
+    ]
+    // 实例化已选菜品表格控件
+    var payLogTable = $('#payLogTableId').datagrid({
+        data: tableData,
+        fitColumns: true,
+        scrollbarSize: 13,
+        singleSelect: true,
+        showFooter: true,
+        rownumbers: true,
+        columns: [
+            [
+                {
+                    width: fixWidth(0.4),
+                    field: 'payType',
+                    title: '渠道',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false
+                },
+                {
+                    width: fixWidth(0.4),
+                    field: 'payPrice',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false,
+                    title: '金额'
+                },
+                {
+                    width: fixWidth(0.2),
+                    field: 'operate',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false,
+                    title: '操作',
+                    formatter: function (value, row, index) {
+                        return '<a href="#" name="operate" class="easyui-linkbutton" ></a>';
+                    }
+                }
+            ]
+        ],
+        onLoadSuccess: function (data) {
+            $("a[name='operate']").linkbutton({plain:true,iconCls:'icon-cancel'});
+            $("a[name='operate']").bind('click',function () {
+                console.info($('#payLogTableId').datagrid('getData'));
+            })
+            // 删除支付记录列表分隔线样式
+            $('#payLogTableId').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+        }
+    });
+    // 支付金额操作按钮绑定单击事件
+    $('#payNumOperId').find('input').bind('click',function () {
+        console.info($.trim($(this).val()));
+    })
+</script>
 </body>
 </html>
