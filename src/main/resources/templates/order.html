@@ -100,25 +100,6 @@
     </div>
 </div>
 <script>
-    // 实例化窗口组件
-    var payWin = $('#orderPayWin').window({
-        title:'结账',
-        width:fixWidth(0.5),
-        height:fixWidth(0.39),
-        modal:true,
-        collapsible:false,
-        minimizable:false,
-        closed:true,
-        href: 'toPay'
-    });
-    // 绑定去结算按钮点击事件
-    $('#goToPayButId').bind('click',function () {
-        // 打开支付窗口
-        payWin.window('open');
-        // 窗口居中显示
-        payWin.window('center');
-    });
-// ------------------------------------无奈的分割线--------------------------------------------
     // 设置table只有底线
     function removeTableLines() {
         $('#selectedFoodTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
@@ -489,6 +470,33 @@
         // 更新当前tab内容
         currTab.panel('refresh', 'food/queryFoodsByTypeAndCode?foodCode='+ value);
     };
+
+// ------------------------------------无奈的分割线--------------------------------------------
+    // 绑定去结算按钮点击事件
+    $('#goToPayButId').bind('click',function () {
+        // 获取总消费金额,已点菜品底部合计金额部分
+        var totalMoney = selectedFoodTable.datagrid('getFooterRows');
+        // 判断是否有合计金额
+        if(typeof(totalMoney) == 'undefined' || totalMoney.length <= 0){
+            $.messager.alert('提示','还没有点菜呦~','info');
+        } else {
+            // 获取总共消费钱数
+            var needPayMoney = new Number(totalMoney[0].price.substring(1)).toFixed(2);
+            // 实例化窗口组件
+            var payWin = $('#orderPayWin').window({
+                title:'结账',
+                width:fixWidth(0.5),
+                height:fixWidth(0.39),
+                modal:true,
+                collapsible:false,
+                minimizable:false,
+                closed:true,
+                href: 'food/toPay?needPayMoney=' + needPayMoney  // 内容url
+            });
+            // 打开支付窗口
+            payWin.window('open');
+        }
+    });
 </script>
 </body>
 </html>

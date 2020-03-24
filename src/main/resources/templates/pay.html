@@ -28,6 +28,22 @@
         font-weight: bold;
         background-color: #FFFFFF;
     }
+    /*消费金额支付概览*/
+    .money-pay-overview{
+        height: 35px;
+    }
+    .money-pay-overview span:nth-child(1){
+        position: absolute;
+        font-weight: bold;
+        line-height: 35px;
+        margin-left: 5px;
+    }
+    .money-pay-overview span:nth-child(2){
+        position: absolute;
+        font-weight: bold;
+        line-height: 35px;
+        right: 5px;
+    }
     /*以下为覆盖原有组件样式*/
     .radiobutton-inner{
         background: #95B8E7 !important;
@@ -43,7 +59,18 @@
         <div class="easyui-layout" style="width:100%;height:100%;">
             <!--支付状态概览区域-->
             <div data-options="region:'north',split:false" style="width:100%;height:23%;background-color: #E8E9DE;">
-                this is north
+                <div class="money-pay-overview">
+                    <span>消费金额：</span>
+                    <span id="moneyPayTotalId" th:text="'￥'+ ${totalMoney}"></span>
+                </div>
+                <div class="money-pay-overview">
+                    <span>已付金额：</span>
+                    <span id="moneyPayPaidId">￥0.00</span>
+                </div>
+                <div class="money-pay-overview">
+                    <span>未付金额：</span>
+                    <span id="moneyPayUnPaidId" th:text="'￥'+ ${totalMoney}" style="color: #EC7A4C"></span>
+                </div>
             </div>
             <!--支付记录表格区域-->
             <div data-options="region:'center',border:false,split:false" style="background-color: #EFEEEB">
@@ -66,7 +93,7 @@
            <div style="width: 100%;height: 56px;display: flex;align-items: center;justify-content: center;">
                <div style="width: 95%;position: relative;border: 1px solid #95B8E7;height: 55px;border-radius: 5px;background-color: #FFFFFF;">
                    <span style="margin-left:10px;width: 30%;line-height: 55px;">支付金额：</span>
-                   <span style="right:2%;position: absolute;font-weight: bold;line-height: 55px;">￥ 0.00</span>
+                   <span id="payMoneyInId" style="right:2%;position: absolute;font-weight: bold;font-size:14px;line-height: 55px;" th:text="${inMoney}"></span>
                </div>
            </div>
            <div style="width: 100%;display: flex;align-items: center;justify-content: center;margin-top:5%;">
@@ -115,7 +142,7 @@
         {payType:'支付宝',payPrice:'￥189.56'},
         {payType:'银行卡',payPrice:'￥189.56'},
         {payType:'微信',payPrice:'￥189.56'}
-    ]
+    ];
     // 实例化已选菜品表格控件
     var payLogTable = $('#payLogTableId').datagrid({
         data: tableData,
@@ -156,7 +183,9 @@
             ]
         ],
         onLoadSuccess: function (data) {
+            // 每行操作添加icon
             $("a[name='operate']").linkbutton({plain:true,iconCls:'icon-cancel'});
+            // 每行操作绑定单击事件
             $("a[name='operate']").bind('click',function () {
                 console.info($('#payLogTableId').datagrid('getData'));
             })
@@ -164,9 +193,25 @@
             $('#payLogTableId').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
         }
     });
-    // 支付金额操作按钮绑定单击事件
+    // 支付金额操作按钮区绑定单击事件
     $('#payNumOperId').find('input').bind('click',function () {
-        console.info($.trim($(this).val()));
+        // 获取金额录入按钮值
+        var operVal = $.trim($(this).val());
+        // 获取支付金额录入框值
+        var inMoney = new Number($('#payMoneyInId').text()).toFixed(2);
+        console.info($('#payMoneyInId').text());
+        // 判断输入金额是否大于0
+        if(inMoney == 0){
+
+        } else {
+            if(operVal == 'C'){
+                // 重置为0
+            } else if(operVal == '<—'){
+
+            }
+        }
+
+
     })
 </script>
 </body>
