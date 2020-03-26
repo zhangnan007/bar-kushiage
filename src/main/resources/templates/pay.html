@@ -46,10 +46,10 @@
     }
     /*以下为覆盖原有组件样式*/
     .radiobutton-inner{
-        background: #95B8E7 !important;
+        background: #DF2020 !important;
     }
     .radiobutton{
-        border: 2px solid #95B8E7 !important;
+        border: 2px solid #DF2020 !important;
     }
 </style>
 <!--结算页面容器-->
@@ -87,8 +87,8 @@
     <div data-options="region:'center',border:false,split:false" style="background-color: #E9E6E2">
        <div style="height: 30%;position: absolute;width: 100%;bottom: 251px;">
            <div style="width: 100%;height: 35px;display: flex;align-items: center;position: relative;">
-               <span style="position: absolute;left: 45%;">找零金额</span>
-               <span style="position: absolute;right: 5%;font-weight: bold;">￥ 0.00</span>
+               <span style="position: absolute;left: 45%;">找零金额：</span>
+               <span id="moneyGiveChangeId" style="position: absolute;right: 5%;font-weight: bold;">￥ 0.00</span>
            </div>
            <div style="width: 100%;height: 56px;display: flex;align-items: center;justify-content: center;">
                <div style="width: 95%;position: relative;border: 1px solid #95B8E7;height: 55px;border-radius: 5px;background-color: #FFFFFF;">
@@ -96,8 +96,9 @@
                    <span id="payMoneyInId" style="right:2%;position: absolute;font-weight: bold;font-size:14px;line-height: 55px;" th:text="${inMoney}"></span>
                </div>
            </div>
-           <div style="width: 100%;display: flex;align-items: center;justify-content: center;margin-top:5%;">
+           <div style="width: 100%;display: flex;align-items: center;justify-content: center;margin-top:3%;">
                 <form id="payTypeFormId">
+                    <span style="display: block;width: 30%;margin-left: -10px;margin-bottom: 10px;">支付渠道：</span>
                     <input data-options="labelWidth:50,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="aliPay" label="支付宝">
                     <input data-options="labelWidth:33,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="weChat" label="微信">
                     <input data-options="labelWidth:33,labelPosition:'after'" class="easyui-radiobutton" name="PayTypeRadioName" value="cash" label="现金">
@@ -114,13 +115,13 @@
                    <td><input type="button" value=" 7 " /></td>
                    <td><input type="button" value="8" /></td>
                    <td><input type="button" value=" 9 " /></td>
-                   <td colspan="2"><input type="button" value="C" /></td>
+                   <td colspan="2"><input type="button" value="清除" /></td>
                </tr>
                <tr>
                    <td><input type="button" value=" 4 " /></td>
                    <td><input type="button" value="5" /></td>
                    <td><input type="button" value=" 6 " /></td>
-                   <td colspan="2"><input type="button" value="<—" /></td>
+                   <td colspan="2"><input type="button" value="退格" /></td>
                </tr>
                <tr>
                    <td><input type="button" value=" 1 " /></td>
@@ -138,14 +139,9 @@
     </div>
 </div>
 <script>
-    var tableData = [
-        {payType:'支付宝',payPrice:'￥189.56'},
-        {payType:'银行卡',payPrice:'￥189.56'},
-        {payType:'微信',payPrice:'￥189.56'}
-    ];
     // 实例化已选菜品表格控件
     var payLogTable = $('#payLogTableId').datagrid({
-        data: tableData,
+        data: [],
         fitColumns: true,
         scrollbarSize: 13,
         singleSelect: true,
@@ -154,8 +150,13 @@
         columns: [
             [
                 {
+                    hidden: true,
+                    field: 'payVal',
+                    title: '支付类型值',
+                },
+                {
                     width: fixWidth(0.4),
-                    field: 'payType',
+                    field: 'payTypeText',
                     title: '渠道',
                     align: 'center',
                     halign: 'center',
@@ -187,32 +188,181 @@
             $("a[name='operate']").linkbutton({plain:true,iconCls:'icon-cancel'});
             // 每行操作绑定单击事件
             $("a[name='operate']").bind('click',function () {
-                console.info($('#payLogTableId').datagrid('getData'));
-            })
+                // 删除支付记录操作确认后需要还原原始金额
+                // 进行二次确认
+                $.messager.confirm('提示', '确定要删除该条支付记录吗?', function(oper){
+                    if (oper){
+                        // 获取选中行数据
+                        var selectRow = $('#payLogTableId').datagrid('getSelected');
+                        // 获取选中行index
+                        var index = $('#payLogTableId').datagrid('getRowIndex',selectRow);
+                        // 删除选中行
+                        $('#payLogTableId').datagrid('deleteRow',index);
+                        // 总消费金额
+                        var totalMoney = $('#moneyPayTotalId').text();
+                        // 已付金额
+                        var paidMoney = $('#moneyPayPaidId').text();
+                        // 未付金额
+                        var unPaidMoney = $('#moneyPayUnPaidId').text();
+                        // 已付金额 = 当前已付金额 - 删除部分的金额
+                        paidMoney = new Number(paidMoney.substring(1).trim()) - new Number(selectRow.payPrice.substring(1).trim()).toFixed(2);
+                        // 从新计算未付金额 总金额 - 已付金额
+                        unPaidMoney = new Number(new Number(totalMoney.substring(1).trim()) - paidMoney).toFixed(2);
+                        if(unPaidMoney < 0){
+                            // 小于0时未付金额设置为0
+                            unPaidMoney = 0.00;
+                            // 如果未付金额小于0，证明已付金额大于消费总额，需要找零，设置找零金额
+                            var changeMoney = new Number(paidMoney - new Number(totalMoney.substring(1).trim())).toFixed(2);
+                            // 重置找零金额
+                            $('#moneyGiveChangeId').text('￥ ' + changeMoney);
+                        } else {
+                            // 重置找零金额
+                            $('#moneyGiveChangeId').text('￥ 0.00');
+                        }
+                        // 重置已付金额显示值
+                        $('#moneyPayPaidId').text('￥' + paidMoney);
+                        // 重置未付金额
+                        $('#moneyPayUnPaidId').text('￥' + unPaidMoney);
+                    }
+                });
+
+            });
             // 删除支付记录列表分隔线样式
             $('#payLogTableId').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
         }
     });
+    // 初始化提示，给支付类型的第一个支付宝支付添加
+    var payTypeTips = $('#payTypeFormId').tooltip({
+        position: 'bottom',
+        content: '<span style="color:#333333">请选择支付渠道类型</span>',
+        onShow: function(){
+            $(this).tooltip('tip').css({
+                borderColor: '#EC0000'
+            });
+        }
+    });
     // 支付金额操作按钮区绑定单击事件
     $('#payNumOperId').find('input').bind('click',function () {
-        // 获取金额录入按钮值
+        // 获取按钮操作区值
         var operVal = $.trim($(this).val());
         // 获取支付金额录入框值
-        var inMoney = new Number($('#payMoneyInId').text()).toFixed(2);
-        console.info($('#payMoneyInId').text());
-        // 判断输入金额是否大于0
-        if(inMoney == 0){
-
+        var inMoney = $('#payMoneyInId').text();
+        // 金额输入框当前金额是否等于0
+        if(inMoney == '0'){
+            // 如果操作值是数字或是小数点则直接赋值
+            if(operVal != '清除'
+                && operVal != '退格'
+                && operVal != '00'
+                && operVal != '·'
+                && operVal != '确定'){
+                inMoney = operVal;
+            } else if (operVal == '·'){
+                inMoney = '0.';
+            } else if (operVal == '确定'){
+                $.messager.alert('提示','请输入非0金额!','info');
+            }
         } else {
-            if(operVal == 'C'){
-                // 重置为0
-            } else if(operVal == '<—'){
-
+            // 录入框不为0
+            // 判断操作按钮值
+            if(operVal == '清除'){
+                // 清除操作，重置为0
+                inMoney = '0';
+            } else if(operVal == '退格'){
+                // 退格操作，如果为个位数重置为0
+                if(inMoney.length == 1){
+                    inMoney = '0';
+                } else {
+                    // 否则减掉最后一位
+                    inMoney = inMoney.substring(0,inMoney.length-1);
+                }
+            } else if (operVal != '确定') {
+                // 操作的不是 清除、退格、确定就直接在最后一位加上操作值
+                inMoney = inMoney + operVal;
+            } else if (operVal == '确定'){
+                // 确定操作
+                // 获取支付类型值
+                var payTypeVal = $('input[name="PayTypeRadioName"]:checked').val();
+                // 判断是否选择支付渠道
+                if (typeof (payTypeVal) == 'undefined'){
+                    // 未选择支付类型则提示选择支付渠道
+                    payTypeTips.tooltip('show');
+                } else {
+                    // 未付金额
+                    var unPaidMoney = $('#moneyPayUnPaidId').text();
+                    // 如果未付金额已经为0将不再进行支付结算操作
+                    if(new Number(unPaidMoney.substring(1).trim()) <= 0){
+                        $.messager.alert('提示','已无未支付金额！','info');
+                        return;
+                    }
+                    // 总消费金额
+                    var totalMoney = $('#moneyPayTotalId').text();
+                    // 已付金额
+                    var paidMoney = $('#moneyPayPaidId').text();
+                    // 新的已付金额 = 当前已付金额 + 录入支付金额
+                    paidMoney = new Number(new Number(paidMoney.substring(1).trim()) + new Number(inMoney)).toFixed(2);
+                    // 未付金额 = 总消费金额 - 新的已付金额
+                    unPaidMoney = new Number(new Number(totalMoney.substring(1).trim()) - paidMoney).toFixed(2);
+                    if(unPaidMoney < 0){
+                        // 小于0时未付金额设置为0
+                        unPaidMoney = 0.00;
+                        // 如果未付金额小于0，证明已付金额大于消费总额，需要找零，设置找零金额
+                        var changeMoney = new Number(paidMoney - new Number(totalMoney.substring(1).trim())).toFixed(2);
+                        // 重置找零金额
+                        $('#moneyGiveChangeId').text('￥ ' + changeMoney);
+                    }
+                    // 重置已付金额显示值
+                    $('#moneyPayPaidId').text('￥' + paidMoney);
+                    // 重置未付金额
+                    $('#moneyPayUnPaidId').text('￥' + unPaidMoney);
+                    // 支付明细表格添加一条数据，构造追加数据结构
+                    var payItem = new Object();
+                    payItem.payVal = payTypeVal;
+                    payItem.payTypeText = getPayTextByPayVal(payTypeVal);
+                    payItem.payPrice = '￥' + inMoney;
+                    // 获取支付明细列表数据
+                    var payRows = payLogTable.datagrid('getData').rows;
+                    // 如果列表没有值则初始化列表数据
+                    if(payRows.length <= 0){
+                        // 构造支付列表初始数据结构
+                        var payRows = [];
+                    }
+                    // 添加一条数据
+                    payRows.push(payItem);
+                    // 重新加载数据
+                    payLogTable.datagrid('loadData',payRows);
+                    payLogTable.datagrid('scrollTo',payRows.length - 1);
+                    // 操作成功支付金额录入框重置为0
+                    inMoney = '0';
+                }
             }
         }
-
-
-    })
+        // 设置操作后数据
+        $('#payMoneyInId').text(inMoney);
+    });
+    // 根据支付类型值返回支付类型显示值
+    function getPayTextByPayVal(payVal) {
+        var payText = '';
+        switch (payVal) {
+            case 'aliPay':
+                payText = '支付宝';
+                break;
+            case 'weChat':
+                payText = '微信';
+                break;
+            case 'cash':
+                payText = '现金';
+                break;
+            case 'reduction':
+                payText = '减免';
+                break;
+            case 'bankCard':
+                payText = '银行卡';
+                break;
+            default:
+                payText = '其他';
+        };
+        return payText;
+    }
 </script>
 </body>
 </html>
