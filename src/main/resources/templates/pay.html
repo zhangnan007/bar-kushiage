@@ -79,7 +79,7 @@
             </div>
             <!--完成结账按钮区域-->
             <div data-options="region:'south',border:false,split:false" style="width:100%;height: 9%">
-                <button style="width:100%;height:100%;background-color: #CC6552;color: #F5F1EF;">完成结账</button>
+                <button id="payDoneButtonId" style="width:100%;height:100%;background-color: #CC6552;color: #F5F1EF;">完成结账</button>
             </div>
         </div>
     </div>
@@ -202,12 +202,10 @@
                         var totalMoney = $('#moneyPayTotalId').text();
                         // 已付金额
                         var paidMoney = $('#moneyPayPaidId').text();
-                        // 未付金额
-                        var unPaidMoney = $('#moneyPayUnPaidId').text();
                         // 已付金额 = 当前已付金额 - 删除部分的金额
                         paidMoney = new Number(paidMoney.substring(1).trim()) - new Number(selectRow.payPrice.substring(1).trim()).toFixed(2);
                         // 从新计算未付金额 总金额 - 已付金额
-                        unPaidMoney = new Number(new Number(totalMoney.substring(1).trim()) - paidMoney).toFixed(2);
+                        var unPaidMoney = new Number(new Number(totalMoney.substring(1).trim()) - paidMoney).toFixed(2);
                         if(unPaidMoney < 0){
                             // 小于0时未付金额设置为0
                             unPaidMoney = 0.00;
@@ -223,6 +221,8 @@
                         $('#moneyPayPaidId').text('￥' + paidMoney);
                         // 重置未付金额
                         $('#moneyPayUnPaidId').text('￥' + unPaidMoney);
+                        // 重置支付金额录入框值，以免出现录入金额错误
+                        $('#payMoneyInId').text('0');
                     }
                 });
 
@@ -231,10 +231,21 @@
             $('#payLogTableId').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
         }
     });
-    // 初始化提示，给支付类型的第一个支付宝支付添加
+    // 初始化支付类型校验提示
     var payTypeTips = $('#payTypeFormId').tooltip({
         position: 'bottom',
         content: '<span style="color:#333333">请选择支付渠道类型</span>',
+        onShow: function(){
+            $(this).tooltip('tip').css({
+                borderColor: '#EC0000'
+            });
+        }
+    });
+    // 初始化未支付校验提示
+    var payUnPaidTips = $('#moneyPayUnPaidId').tooltip({
+        position: 'right',
+        showEvent: 'dblclick ',
+        content: '<span style="color:#333333">还未完成支付！</span>',
         onShow: function(){
             $(this).tooltip('tip').css({
                 borderColor: '#EC0000'
@@ -247,6 +258,13 @@
         var operVal = $.trim($(this).val());
         // 获取支付金额录入框值
         var inMoney = $('#payMoneyInId').text();
+        // 未付金额
+        var unPaidMoney = $('#moneyPayUnPaidId').text();
+        // 如果未付金额已经为0将不再进行支付结算操作
+        if(new Number(unPaidMoney.substring(1).trim()) <= 0){
+            $.messager.alert('提示','已无未支付金额！','info');
+            return;
+        }
         // 金额输入框当前金额是否等于0
         if(inMoney == '0'){
             // 如果操作值是数字或是小数点则直接赋值
@@ -277,6 +295,9 @@
                 }
             } else if (operVal != '确定') {
                 // 操作的不是 清除、退格、确定就直接在最后一位加上操作值
+                if(operVal == '·'){
+                    operVal = '.';
+                }
                 inMoney = inMoney + operVal;
             } else if (operVal == '确定'){
                 // 确定操作
@@ -287,13 +308,6 @@
                     // 未选择支付类型则提示选择支付渠道
                     payTypeTips.tooltip('show');
                 } else {
-                    // 未付金额
-                    var unPaidMoney = $('#moneyPayUnPaidId').text();
-                    // 如果未付金额已经为0将不再进行支付结算操作
-                    if(new Number(unPaidMoney.substring(1).trim()) <= 0){
-                        $.messager.alert('提示','已无未支付金额！','info');
-                        return;
-                    }
                     // 总消费金额
                     var totalMoney = $('#moneyPayTotalId').text();
                     // 已付金额
@@ -339,6 +353,35 @@
         // 设置操作后数据
         $('#payMoneyInId').text(inMoney);
     });
+    // 完成结算按钮绑定单击事件
+    $('#payDoneButtonId').bind('click',function () {
+        // 判断是否有未支付金额
+        // 获取未付金额
+        var unPaidMoney = $('#moneyPayUnPaidId').text();
+        // 如果未付金额已经为0将不再进行支付结算操作
+        if(new Number(unPaidMoney.substring(1).trim()) > 0){
+            // 显示未支付检验消息，提示支付还未完成
+            payUnPaidTips.tooltip('show');
+            // 3秒后自动隐藏
+            setTimeout(function(){payUnPaidTips.tooltip('hide');}, 3000);
+        } else {
+            // 如果未付金额小于0,弹出提示框输入领餐号
+            $.messager.prompt('输入', '请输入取餐号:', function(num){
+                if ((/(^[1-9]\d*$)/.test(num))) {
+                    // 如果num是正整数，提交订单信息
+                    submitOrderInfo(num);
+                } else {
+                    // 如果num不是正整数，则弹框提示重新输入
+                    $.messager.alert('错误','操作失败，请输入正整数!','error');
+                }
+            });
+        }
+
+    });
+    // ajax提交订单信息
+    function submitOrderInfo(num) {
+        //
+    }
     // 根据支付类型值返回支付类型显示值
     function getPayTextByPayVal(payVal) {
         var payText = '';
