@@ -1,4 +1,4 @@
-package com.bar.kushiage.model.vo;
+package com.bar.kushiage.model.vo.food;
 
 import lombok.Data;
 

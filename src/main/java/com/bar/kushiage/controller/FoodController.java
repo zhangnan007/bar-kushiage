@@ -1,7 +1,7 @@
 package com.bar.kushiage.controller;
 
-import com.bar.kushiage.model.vo.FoodTypeVo;
-import com.bar.kushiage.model.vo.FoodVo;
+import com.bar.kushiage.model.vo.food.FoodTypeVo;
+import com.bar.kushiage.model.vo.food.FoodVo;
 import com.bar.kushiage.service.FoodService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

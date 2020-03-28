@@ -1,7 +1,7 @@
 package com.bar.kushiage.service;
 
-import com.bar.kushiage.model.vo.FoodTypeVo;
-import com.bar.kushiage.model.vo.FoodVo;
+import com.bar.kushiage.model.vo.food.FoodTypeVo;
+import com.bar.kushiage.model.vo.food.FoodVo;
 
 import java.util.List;
 

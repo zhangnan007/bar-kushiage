@@ -75,7 +75,7 @@
             <!--支付记录表格区域-->
             <div data-options="region:'center',border:false,split:false" style="background-color: #EFEEEB">
                 <!--支付记录table-->
-                <table id="payLogTableId" title="支付金额记录" style="width:100%;height:100%"></table>
+                <table id="payLogTableId" title="支付记录" style="width:100%;height:100%"></table>
             </div>
             <!--完成结账按钮区域-->
             <div data-options="region:'south',border:false,split:false" style="width:100%;height: 9%">
@@ -378,10 +378,72 @@
         }
 
     });
-    // ajax提交订单信息
-    function submitOrderInfo(num) {
-        //
-    }
+    /**
+     * 提交订单信息
+     * @param mealNum 取餐号
+     */
+    function submitOrderInfo(mealNum) {
+        // 获取菜品
+        var foodList = $('#selectedFoodTable').datagrid('getData').rows;
+        // 获取支付记录
+        var payInfo = payLogTable.datagrid('getData').rows;
+        // 获取找零金额
+        var changeMoney = $('#moneyGiveChangeId').text();
+        // 获取总消费金额
+        var totalMoney = $('#moneyPayTotalId').text();
+        // 获取已付金额
+        var paidMoney = $('#moneyPayPaidId').text();
+        var submitData = new Object();
+        submitData.foodList = foodList;
+        submitData.payInfo = payInfo;
+        submitData.changeMoney = changeMoney;
+        submitData.totalMoney = totalMoney;
+        submitData.paidMoney = paidMoney;
+        $.ajax({
+            //请求方式
+            type: "POST",
+            contentType: "application/json;charset=UTF-8",
+            //请求地址
+            url: "order/submit",
+            //数据，json字符串
+            data: JSON.stringify(submitData),
+            //请求成功
+            success: function (result) {
+                console.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                console.info(result);
+                // 销毁当前窗口
+                $('#orderPayWin').window('destroy');
+                // 加载订单页面
+                $('#pageContent').panel('refresh','order');
+                // 弹出操作成功提示框
+                $.messager.show({
+                    title:'提示',
+                    msg:'操作成功!',
+                    showType:'slide',
+                    style:{
+                        right:'',
+                        top:document.body.scrollTop+document.documentElement.scrollTop,
+                        bottom:''
+                    }
+                });
+            },
+            //请求失败，包含具体的错误信息
+            error: function (e) {
+                console.log(e.status);
+                console.log(e.responseText);
+                $.messager.show({
+                    title:'提示',
+                    msg:'操作失败，请检查后重试!',
+                    showType:'slide',
+                    style:{
+                        right:'',
+                        top:document.body.scrollTop+document.documentElement.scrollTop,
+                        bottom:''
+                    }
+                });
+            }
+        });
+    };
     // 根据支付类型值返回支付类型显示值
     function getPayTextByPayVal(payVal) {
         var payText = '';
