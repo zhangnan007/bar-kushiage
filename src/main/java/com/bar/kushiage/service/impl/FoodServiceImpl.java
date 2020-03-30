@@ -10,12 +10,15 @@ import com.bar.kushiage.model.vo.food.FoodTypeVo;
 import com.bar.kushiage.model.vo.food.FoodVo;
 import com.bar.kushiage.service.FoodService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service("foodService")
@@ -50,6 +53,32 @@ public class FoodServiceImpl implements FoodService {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("FoodServiceImpl findFoodType error", e);
+            throw e;
+        }
+    }
+
+    @Override
+    public Double calFoodPrice(String foodIds) {
+        try {
+            if(StringUtils.isBlank(foodIds)){
+                return 0.00;
+            }
+            // 解析foodIds,原始数据结构 id,规格;id,规格
+            List<String> querys = Arrays.asList(foodIds.split(";"));
+            BigDecimal sumPrice = BigDecimal.ZERO;
+            for(String item : querys){
+                String[] idAndSp = item.split(",");
+                Double price = foodExtMapper.selectSumPrice(Long.parseLong(idAndSp[0]),idAndSp[1]);
+                if(price == null){
+                    continue;
+                }
+                BigDecimal cur = new BigDecimal(Double.toString(price));
+                sumPrice = sumPrice.add(cur);
+            }
+           return sumPrice.doubleValue();
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("FoodServiceImpl calFoodPrice error", e);
             throw e;
         }
     }

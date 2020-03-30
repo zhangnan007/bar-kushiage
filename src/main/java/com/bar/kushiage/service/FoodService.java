@@ -26,4 +26,11 @@ public interface FoodService {
      * @return
      */
     public List<FoodVo> findFoodByTypeAndCode(Long typeId,String foodCode, String traceId);
+
+    /**
+     * 计算菜品总价格
+     * @param foodIds
+     * @return
+     */
+    public Double calFoodPrice(String foodIds);
 }

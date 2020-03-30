@@ -482,6 +482,18 @@
         } else {
             // 获取总共消费钱数
             var needPayMoney = new Number(totalMoney[0].price.substring(1)).toFixed(2);
+            // 获取已选菜品数据
+            var selFoods = selectedFoodTable.datagrid("getData").rows;
+            // id参数变量
+            var foodIds = '';
+            // 循环已选菜品并构造id参数
+            for(var i = 0;i < selFoods.length;i++){
+                if(i == 0){
+                    foodIds = selFoods[i].id;
+                } else {
+                    foodIds = foodIds + ';' + selFoods[i].id;
+                }
+            }
             // 实例化窗口组件
             var payWin = $('#orderPayWin').window({
                 title:'结账',
@@ -491,7 +503,7 @@
                 collapsible:false,
                 minimizable:false,
                 closed:true,
-                href: 'food/toPay?needPayMoney=' + needPayMoney  // 内容url
+                href: 'food/toPay?foodIds=' + foodIds  // 内容url
             });
             // 打开支付窗口
             payWin.window('open');

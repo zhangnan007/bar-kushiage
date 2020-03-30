@@ -3,6 +3,7 @@ package com.bar.kushiage.controller;
 import com.bar.kushiage.model.vo.food.FoodTypeVo;
 import com.bar.kushiage.model.vo.food.FoodVo;
 import com.bar.kushiage.service.FoodService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,30 +66,33 @@ public class FoodController {
 
     /**
      * 跳转支付窗口页面
-     * @param needPayMoney
+     *
      * @param traceId
      * @param model
      * @return
      */
     @RequestMapping(value = "/toPay")
-    public String toPay(Double needPayMoney,String traceId,Model model) {
+    public String toPay(String foodIds, String traceId, Model model) {
         // 构造结果集
         try {
-            logger.info("food controller queryFoodTypes start, needPayMoney: " + needPayMoney);
-            if(needPayMoney == null || needPayMoney < 0){
-                needPayMoney = 0.00;
+            logger.info("food controller toPay start");
+            Double sumPrice = 0.00;
+            // 根据foodId查询菜品总价格
+            sumPrice = foodService.calFoodPrice(foodIds);
+            if (StringUtils.isBlank(foodIds)) {
+                sumPrice = 0.00;
             }
-            model.addAttribute("totalMoney",needPayMoney);
-            BigDecimal value = new BigDecimal(needPayMoney.toString());
+            model.addAttribute("totalMoney", sumPrice);
+            BigDecimal value = new BigDecimal(sumPrice.toString());
             BigDecimal noZeros = value.stripTrailingZeros();
             String initInMoney = noZeros.toPlainString();
-            model.addAttribute("inMoney",initInMoney);
+            model.addAttribute("inMoney", initInMoney);
             return "pay";
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("food controller queryFoodTypes error,traceId: " + traceId, e);
+            logger.error("food controller toPay error", e);
+            return null;
         }
-        return null;
     }
 
 }
