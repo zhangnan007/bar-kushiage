@@ -5,20 +5,18 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class FoodPrice {
+public class OrderFoodLog {
     private Long id;
 
-    private Long foodId;
+    private Long orderId;
 
-    private String specs;
+    private String foodName;
 
-    private Double price;
+    private String foodSpecs;
 
-    private Long sort;
+    private Double foodPrice;
 
-    private String loseReason;
-
-    private String remark;
+    private Integer num;
 
     private Integer status;
 

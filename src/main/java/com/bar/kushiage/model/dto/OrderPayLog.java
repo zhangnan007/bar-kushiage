@@ -5,19 +5,19 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class FoodType {
+public class OrderPayLog {
     private Long id;
 
-    private String name;
+    private Long orderId;
 
-    private String remark;
+    private String payType;
 
-    private String loseReason;
+    private Double payPrice;
 
     private Integer status;
 
     private Date createTime;
 
-    private Date modifyTime;
+    private Date modityTime;
 
 }

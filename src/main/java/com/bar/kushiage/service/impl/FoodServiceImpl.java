@@ -1,11 +1,8 @@
 package com.bar.kushiage.service.impl;
 
 import com.bar.kushiage.common.constant.FoodConstantEnum;
-import com.bar.kushiage.dao.FoodExtMapper;
 import com.bar.kushiage.dao.FoodMapper;
-import com.bar.kushiage.dao.FoodTypeMapper;
 import com.bar.kushiage.model.dto.FoodType;
-import com.bar.kushiage.model.dto.FoodTypeExample;
 import com.bar.kushiage.model.vo.food.FoodTypeVo;
 import com.bar.kushiage.model.vo.food.FoodVo;
 import com.bar.kushiage.service.FoodService;
@@ -26,20 +23,13 @@ public class FoodServiceImpl implements FoodService {
     Logger logger = LoggerFactory.getLogger(FoodServiceImpl.class);
 
     @Autowired
-    FoodTypeMapper foodTypeMapper;
-    @Autowired
     FoodMapper foodMapper;
-    @Autowired
-    FoodExtMapper foodExtMapper;
 
     @Override
     public List<FoodTypeVo> findFoodType(String traceId) {
         try {
-            FoodTypeExample foodTypeExample = new FoodTypeExample();
-            foodTypeExample.createCriteria()
-                    .andStatusEqualTo(FoodConstantEnum.FOOD_STATUS_NORMAL.getCode());
             // 获取正在生效的菜品类型
-            List<FoodType> types = foodTypeMapper.selectByExample(foodTypeExample);
+            List<FoodType> types = foodMapper.selectFoodTypeByStatus(FoodConstantEnum.FOOD_STATUS_NORMAL.getCode());
             List<FoodTypeVo> vos = new ArrayList<FoodTypeVo>();
             if (CollectionUtils.isNotEmpty(types)) {
                 types.forEach(type -> {
@@ -68,7 +58,7 @@ public class FoodServiceImpl implements FoodService {
             BigDecimal sumPrice = BigDecimal.ZERO;
             for(String item : querys){
                 String[] idAndSp = item.split(",");
-                Double price = foodExtMapper.selectSumPrice(Long.parseLong(idAndSp[0]),idAndSp[1]);
+                Double price = foodMapper.selectSumPrice(Long.parseLong(idAndSp[0]),idAndSp[1]);
                 if(price == null){
                     continue;
                 }
@@ -86,7 +76,7 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public List<FoodVo> findFoodByTypeAndCode(Long typeId, String foodCode, String traceId) {
         try {
-            List<FoodVo> foodVos = foodExtMapper.selectFoodByTypeId(typeId,foodCode);
+            List<FoodVo> foodVos = foodMapper.selectByTypeId(typeId,foodCode);
             return foodVos;
         } catch (Exception e) {
             e.printStackTrace();
