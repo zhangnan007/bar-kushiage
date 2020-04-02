@@ -18,6 +18,6 @@ public class OrderPayLog {
 
     private Date createTime;
 
-    private Date modityTime;
+    private Date modifyTime;
 
 }

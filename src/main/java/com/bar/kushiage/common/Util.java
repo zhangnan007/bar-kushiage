@@ -3,6 +3,7 @@ package com.bar.kushiage.common;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
@@ -10,6 +11,24 @@ import java.io.File;
  * 公共工具类
  */
 public class Util {
+
+    /**
+     * 解析前端传过来的带￥符号的价格
+     *
+     * @param price
+     * @return
+     */
+    public static Double parsePrice(String price) {
+        if (StringUtils.isNotBlank(price)) {
+            String[] change = price.split("￥");
+            if (change.length > 1) {
+                return Double.parseDouble(change[1].trim());
+            } else if (change.length == 1) {
+                return Double.parseDouble(change[0].trim());
+            }
+        }
+        return 0.00;
+    }
 
     /**
      * 语音转文字并播放
@@ -73,7 +92,7 @@ public class Util {
      * @param pathname
      * @return
      */
-    public static boolean deleteFile(String pathname){
+    public static boolean deleteFile(String pathname) {
         boolean result = false;
         File file = new File(pathname);
         if (file.exists()) {

@@ -3,15 +3,15 @@ package com.bar.kushiage.common.constant;
 /**
  * 菜品相关常量Enum
  */
-public enum FoodConstantEnum {
+public enum ConstantEnum {
 
-    FOOD_STATUS_NORMAL(1,"生效"),
-    FOOD_STATUS_LOSE(0,"失效");
+    DB_STATUS_NORMAL(1,"生效"),
+    DB_STATUS_LOSE(0,"失效");
 
     private final Integer code;
     private final String note;
 
-    FoodConstantEnum(Integer code, String note) {
+    ConstantEnum(Integer code, String note) {
         this.code = code;
         this.note = note;
     }
@@ -24,8 +24,8 @@ public enum FoodConstantEnum {
         return note;
     }
 
-    public static FoodConstantEnum getValueOf(Integer code) {
-        for (FoodConstantEnum ce : values()) {
+    public static ConstantEnum getValueOf(Integer code) {
+        for (ConstantEnum ce : values()) {
             if (ce.code == code) {
                 return ce;
             }

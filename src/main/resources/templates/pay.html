@@ -410,23 +410,34 @@
             data: JSON.stringify(submitData),
             //请求成功
             success: function (result) {
-                console.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                console.info(result);
-                // 销毁当前窗口
-                $('#orderPayWin').window('destroy');
-                // 加载订单页面
-                $('#pageContent').panel('refresh','order');
-                // 弹出操作成功提示框
-                $.messager.show({
-                    title:'提示',
-                    msg:'操作成功!',
-                    showType:'slide',
-                    style:{
-                        right:'',
-                        top:document.body.scrollTop+document.documentElement.scrollTop,
-                        bottom:''
-                    }
-                });
+                if(result){
+                    // 销毁当前窗口
+                    $('#orderPayWin').window('destroy');
+                    // 加载订单页面
+                    $('#pageContent').panel('refresh','order');
+                    // 弹出操作成功提示框
+                    $.messager.show({
+                        title:'提示',
+                        msg:'操作成功!',
+                        showType:'null',
+                        style:{
+                            right:'',
+                            top:document.body.scrollTop+document.documentElement.scrollTop,
+                            bottom:''
+                        }
+                    });
+                } else {
+                    $.messager.show({
+                        title:'提示',
+                        msg:'操作失败，请检查后重试!',
+                        showType:'null',
+                        style:{
+                            right:'',
+                            top:document.body.scrollTop+document.documentElement.scrollTop,
+                            bottom:''
+                        }
+                    });
+                }
             },
             //请求失败，包含具体的错误信息
             error: function (e) {
@@ -435,7 +446,7 @@
                 $.messager.show({
                     title:'提示',
                     msg:'操作失败，请检查后重试!',
-                    showType:'slide',
+                    showType:'null',
                     style:{
                         right:'',
                         top:document.body.scrollTop+document.documentElement.scrollTop,

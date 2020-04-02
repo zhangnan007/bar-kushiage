@@ -1,6 +1,6 @@
 package com.bar.kushiage.service.impl;
 
-import com.bar.kushiage.common.constant.FoodConstantEnum;
+import com.bar.kushiage.common.constant.ConstantEnum;
 import com.bar.kushiage.dao.FoodMapper;
 import com.bar.kushiage.model.dto.FoodType;
 import com.bar.kushiage.model.vo.food.FoodTypeVo;
@@ -29,7 +29,7 @@ public class FoodServiceImpl implements FoodService {
     public List<FoodTypeVo> findFoodType(String traceId) {
         try {
             // 获取正在生效的菜品类型
-            List<FoodType> types = foodMapper.selectFoodTypeByStatus(FoodConstantEnum.FOOD_STATUS_NORMAL.getCode());
+            List<FoodType> types = foodMapper.selectFoodTypeByStatus(ConstantEnum.DB_STATUS_NORMAL.getCode());
             List<FoodTypeVo> vos = new ArrayList<FoodTypeVo>();
             if (CollectionUtils.isNotEmpty(types)) {
                 types.forEach(type -> {

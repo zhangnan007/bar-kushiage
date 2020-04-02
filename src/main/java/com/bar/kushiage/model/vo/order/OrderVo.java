@@ -3,6 +3,7 @@ package com.bar.kushiage.model.vo.order;
 import lombok.Data;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 订单vo
@@ -15,4 +16,8 @@ public class OrderVo {
     String totalMoney; // 总消费金额
     String paidMoney; // 已付金额
     String changeMoney; // 找零金额
+
+    public String bulidFoodIds(){
+        return this.foodList.stream().map(OrderFoodVo :: getId).collect(Collectors.joining(";"));
+    }
 }

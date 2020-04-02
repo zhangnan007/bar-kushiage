@@ -2,9 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>账单</title>
+    <title>账单列表</title>
 </head>
 <body>
-<h1>账单</h1>
+<style>
+    .bill-search-area-textbox-dev{
+        width:33%;
+        float: left;
+        padding-left:15px;
+        margin-top: 8px;
+    }
+    /*去除文本框label的padding*/
+    .textbox-label{
+        padding: 0 !important
+    }
+</style>
+<div class="easyui-layout" style="width:100%;height:100%;">
+    <!--顶部搜索区域-->
+    <div data-options="region:'north'" style="width:100%;height:20%;">
+        <!--取餐号-->
+        <div class="bill-search-area-textbox-dev">
+            <input id="mealNumId" class="easyui-textbox" data-options="type:'text',label:'取餐号:',labelPosition: 'before',labelWidth:50,prompt: '请输入取餐号'" style="width: 95%;" >
+        </div>
+        <!--订单号-->
+        <div class="bill-search-area-textbox-dev">
+            <input id="orderNum" class="easyui-textbox" data-options="type:'text',label:'订单号:',labelPosition: 'before',labelWidth:50,prompt: '请输入订单号'" style="width:95%">
+        </div>
+        <!--消费金额-->
+        <div class="bill-search-area-textbox-dev">
+            <input id="consumerMoneyId" class="easyui-textbox" data-options="type:'text',label:'消费金额:',labelPosition: 'before',labelWidth:63,prompt: '请输入消费金额'" style="width:98%">
+        </div>
+        <!--开始时间-->
+        <input id="orderStartTimeId" class="easyui-datebox" data-options="sharedCalendar:'#cc'">
+        <!--结束时间-->
+        <input id="orderEndTimeId" class="easyui-datebox" data-options="sharedCalendar:'#cc'">
+        <div id="cc" class="easyui-calendar"></div>
+        <!--查询按钮-->
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:20%">查询</a>
+    </div>
+    <!--底部数据显示区域-->
+    <div data-options="region:'center',border:false">
+        center
+    </div>
+</div>
 </body>
 </html>

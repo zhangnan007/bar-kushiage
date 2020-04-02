@@ -2,6 +2,8 @@ package com.bar.kushiage.service;
 
 import com.bar.kushiage.model.vo.order.OrderVo;
 
+import java.text.ParseException;
+
 /**
  * 订单服务
  */
@@ -12,5 +14,5 @@ public interface OrderService {
      * @param orderVo
      * @return
      */
-    public Boolean create(OrderVo orderVo);
+    public Boolean create(OrderVo orderVo)throws ParseException;
 }
