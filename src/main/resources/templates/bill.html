@@ -19,7 +19,7 @@
 </style>
 <div class="easyui-layout" style="width:100%;height:100%;">
     <!--顶部搜索区域-->
-    <div data-options="region:'north'" style="width:100%;height:20%;">
+    <div data-options="region:'north'" style="width:100%;height:15%;">
         <!--取餐号-->
         <div class="bill-search-area-textbox-dev">
             <input id="mealNumId" class="easyui-textbox" data-options="type:'text',label:'取餐号:',labelPosition: 'before',labelWidth:50,prompt: '请输入取餐号'" style="width: 95%;" >
@@ -32,18 +32,192 @@
         <div class="bill-search-area-textbox-dev">
             <input id="consumerMoneyId" class="easyui-textbox" data-options="type:'text',label:'消费金额:',labelPosition: 'before',labelWidth:63,prompt: '请输入消费金额'" style="width:98%">
         </div>
-        <!--开始时间-->
-        <input id="orderStartTimeId" class="easyui-datebox" data-options="sharedCalendar:'#cc'">
-        <!--结束时间-->
-        <input id="orderEndTimeId" class="easyui-datebox" data-options="sharedCalendar:'#cc'">
-        <div id="cc" class="easyui-calendar"></div>
+        <!--时间范围-->
+        <div style="float: left;margin-top:10px;margin-left:15px;">
+            <!--开始时间-->
+            <span>开始时间:</span>
+            <input id="billStartTimeId" class="easyui-datetimebox" style="width: 250px">
+            <!--结束时间-->
+            <span style="margin-left:15px;">结束时间:</span>
+            <input id="billEndTimeId" class="easyui-datetimebox" style="width: 250px">
+        </div>
         <!--查询按钮-->
-        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:20%">查询</a>
+        <a id="billSearchButtonId" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="margin-top:10px;margin-left:20px;width:100px;" >查询</a>
     </div>
     <!--底部数据显示区域-->
     <div data-options="region:'center',border:false">
-        center
+        <!--账单数据tabs-->
+        <div id="billDataListTabId" class="easyui-tabs" style="width:100%;height:100%;">
+            <div title="今天账单" style="padding:10px">
+                <!--今天账单数据table-->
+                <table id="todayBillDataListTable" style="width:100%;height:100%"></table>
+            </div>
+            <div title="全部账单" style="padding:10px">
+                <!--全部账单数据table-->
+                <!--<table id="allBillDataListTable" style="width:100%;height:100%"></table>-->
+                1
+            </div>
+        </div>
     </div>
 </div>
+<script>
+    // 计算宽度百分比
+    function billFixWidth(percent) {
+        return document.body.clientWidth * percent; //这里你可以自己做调整
+    };
+    // 实例化已选菜品表格控件
+    var billDataTodayTable = $('#todayBillDataListTable').datagrid({
+        data: [],
+        fitColumns: true,
+        scrollbarSize: 13,
+        singleSelect: true,
+        idField: 'id',
+        pagination: true,
+        columns: [
+            [
+                {
+                    field: 'id',
+                    hidden: true,
+                    title: '账单标识'
+                },
+                {
+                    width: billFixWidth(0.2),
+                    field: 'orderNum',
+                    title: '订单号',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false
+                },
+                {
+                    width: billFixWidth(0.2),
+                    field: 'mealNum',
+                    title: '取餐号',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false
+                },
+                {
+                    width: billFixWidth(0.2),
+                    field: 'totalPrice',
+                    title: '消费金额',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false,
+                    formatter: function (value, row, index) {
+                        if((value + '').split('￥').length == 1){
+                            return '￥' + value;
+                        } else {
+                            return value;
+                        }
+                    }
+                },
+                {
+                    width: billFixWidth(0.2),
+                    field: 'createTime',
+                    title: '下单时间',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false
+                },
+                {
+                    width: billFixWidth(0.2),
+                    field: 'operate',
+                    title: '操作',
+                    align: 'center',
+                    halign: 'center',
+                    resizable: false,
+                    formatter: function (value, row, index) {
+                        return '<a href="#" id="billDataListTodayTableOperateId" class="easyui-linkbutton" >详情</a>';
+                    }
+                }
+            ]
+        ],
+        onLoadSuccess: function (data) {
+            // 每行操作添加icon
+            $("#billDataListTodayTableOperateId").linkbutton({plain:true});
+            // 每行操作绑定单击事件
+            $("#billDataListTodayTableOperateId").bind('click',function () {
+                console.info("xxxxxx");
+            });
+            // 设置table只有底线
+            $('#todayBillDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+        }
+    });
+    // 实例化查询条件结束时间组件
+    var billDateBoxEndTime = $('#billEndTimeId').datetimebox({
+        showSeconds: false,
+        closeText:'关闭',
+        okText:'确定',
+        currentText:'今天',
+        formatter:billSearchTimeFormatter,
+        parser:billSearchTimeParser
+    });
+    // 实例化查询条件开始时间组件
+    var billDateBoxStartTime = $('#billStartTimeId').datetimebox({
+        showSeconds: false,
+        closeText:'关闭',
+        okText:'确定',
+        currentText:'今天',
+        formatter:billSearchTimeFormatter,
+        parser:billSearchTimeParser,
+        onSelect: function(sdate){
+            // 开始时间选中后,设置结束时间只能选择大于等于开始时间的日期
+            billDateBoxEndTime.datetimebox('calendar').calendar({
+                validator: function(date){
+                    return date >= sdate;
+                }
+            });
+        }
+    });
+    // 查询按钮绑定单击事件
+    $('#billSearchButtonId').bind('click', function(){
+        // 获取消费金额
+        var conPriceVal = $('#consumerMoneyId').val();
+        // 获取取餐号
+        var mealNumVal = $('#mealNumId').val();
+        // 获取订单号
+        var orderNumVal = $('#orderNum').val();
+        // 开始时间
+        var startTime = billDateBoxStartTime.datetimebox('getValue');
+        // 结束时间
+        var endTime = billDateBoxEndTime.datetimebox('getValue');
+        console.info(mealNumVal);
+        console.info(orderNumVal);
+        console.info(conPriceVal);
+        console.info(startTime);
+        console.info(endTime);
+
+    });
+    // 格式化账单时间查询条件
+    function billSearchTimeFormatter(date) {
+        var y = date.getFullYear();
+        var m = date.getMonth()+1;
+        var d = date.getDate();
+        var h = date.getHours();
+        var min = date.getMinutes();
+        var formatStr = y + '-' + (m < 10 ? ('0' + m) : m) + '-' + (d < 10 ? ('0' + d) : d) + ' ' + (h < 10 ? ('0' + h) : h) + ':' + (min < 10 ? ('0' + min) : min) ;
+        return formatStr
+    };
+    // 解析账单时间查询条件,返回date为日期下拉面板中显示的时间
+    function billSearchTimeParser(s) {
+        var orgTimeStr = s.split(' ');
+        if(orgTimeStr.length <= 1){
+            return new Date();
+        }
+        var dateStr = (orgTimeStr[0].split('-'));
+        var y = parseInt(dateStr[0],10);
+        var m = parseInt(dateStr[1],10);
+        var d = parseInt(dateStr[2],10);
+        var dateTime = (orgTimeStr[1].split(':'));
+        var h = parseInt(dateTime[0],10);
+        var min = parseInt(dateTime[1],10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d) && !isNaN(h) && !isNaN(min)){
+            return new Date(y,m-1,d,h,min);
+        } else {
+            return new Date();
+        }
+    };
+    
+</script>
 </body>
 </html>
