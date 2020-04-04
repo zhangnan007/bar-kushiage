@@ -42,22 +42,14 @@
             <input id="billEndTimeId" class="easyui-datetimebox" style="width: 250px">
         </div>
         <!--查询按钮-->
-        <a id="billSearchButtonId" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="margin-top:10px;margin-left:20px;width:100px;" >查询</a>
+        <a id="billSearchButtonId" href="#" class="easyui-linkbutton" style="margin-top:10px;margin-left:20px;width:100px;" >查询</a>
+        <!--重置按钮-->
+        <a id="billResetButtonId" href="#" class="easyui-linkbutton" style="margin-top:10px;margin-left:20px;width:100px;" >重置</a>
     </div>
     <!--底部数据显示区域-->
     <div data-options="region:'center',border:false">
-        <!--账单数据tabs-->
-        <div id="billDataListTabId" class="easyui-tabs" style="width:100%;height:100%;">
-            <div title="今天账单" style="padding:10px">
-                <!--今天账单数据table-->
-                <table id="todayBillDataListTable" style="width:100%;height:100%"></table>
-            </div>
-            <div title="全部账单" style="padding:10px">
-                <!--全部账单数据table-->
-                <!--<table id="allBillDataListTable" style="width:100%;height:100%"></table>-->
-                1
-            </div>
-        </div>
+        <!--账单数据table-->
+        <table id="billDataListTable" style="width:100%;height:100%"></table>
     </div>
 </div>
 <script>
@@ -65,9 +57,22 @@
     function billFixWidth(percent) {
         return document.body.clientWidth * percent; //这里你可以自己做调整
     };
+    var billData = {"total":18,"rows":[
+            {"id":1,"orderNum":"FI-SW-01","mealNum":"Koi","totalPrice":"10.00","createTime":"EST-1"},
+            {"id":1,"orderNum":"K9-DL-01","mealNum":"Dalmation","totalPrice":"12.00","createTime":"EST-10"},
+            {"id":1,"orderNum":"RP-SN-01","mealNum":"Rattlesnake","totalPrice":"12.00","createTime":"EST-11"},
+            {"id":1,"orderNum":"RP-SN-01","mealNum":"Rattlesnake","totalPrice":"12.00","createTime":"EST-12"},
+            {"id":1,"orderNum":"RP-LI-02","mealNum":"Iguana","totalPrice":"12.00","createTime":"EST-13"},
+            {"id":1,"orderNum":"FL-DSH-01","mealNum":"Manx","totalPrice":"12.00","createTime":"EST-14"},
+            {"id":1,"orderNum":"FL-DSH-01","mealNum":"Manx","totalPrice":"12.00","createTime":"EST-15"},
+            {"id":1,"orderNum":"FL-DLH-02","mealNum":"Persian","totalPrice":"12.00","createTime":"EST-16"},
+            {"id":1,"orderNum":"FL-DLH-02","mealNum":"Persian","totalPrice":"12.00","createTime":"EST-17"},
+            {"id":1,"orderNum":"AV-CB-01","mealNum":"Amazon Parrot","totalPrice":"92.00","createTime":"EST-18"}
+        ]
+    }
     // 实例化已选菜品表格控件
-    var billDataTodayTable = $('#todayBillDataListTable').datagrid({
-        data: [],
+    var billDataListTable = $('#billDataListTable').datagrid({
+        data: billData,
         fitColumns: true,
         scrollbarSize: 13,
         singleSelect: true,
@@ -127,20 +132,39 @@
                     halign: 'center',
                     resizable: false,
                     formatter: function (value, row, index) {
-                        return '<a href="#" id="billDataListTodayTableOperateId" class="easyui-linkbutton" >详情</a>';
+                        return '<a href="#" name="billDataListTableOperateId" class="easyui-linkbutton" >详情</a>';
                     }
                 }
             ]
         ],
         onLoadSuccess: function (data) {
             // 每行操作添加icon
-            $("#billDataListTodayTableOperateId").linkbutton({plain:true});
+            $("a[name='billDataListTableOperateId']").linkbutton({plain: true});
             // 每行操作绑定单击事件
-            $("#billDataListTodayTableOperateId").bind('click',function () {
+            $("a[name='billDataListTableOperateId']").bind('click', function () {
                 console.info("xxxxxx");
             });
             // 设置table只有底线
-            $('#todayBillDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+            $('#billDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+            // 获取分页分页
+            $('#billDataListTable').datagrid('getPager').pagination({
+                pageNumber: 1,
+                pageSize: 3,
+                showPageList: false,
+                beforePageText: '第',
+                afterPageText: '页 共 {pages}页',
+                displayMsg: '共 {total}条记录',
+                onSelectPage: function (page, pageSize) {
+                    console.info("onSelect in");
+                    console.info(page);
+                    console.info(pageSize);
+                },
+                onRefresh: function (pageNumber, pageSize) {
+                    console.info("onRefresh in");
+                    console.warn(pageNumber);
+                    console.warn(pageSize);
+                }
+            });
         }
     });
     // 实例化查询条件结束时间组件
