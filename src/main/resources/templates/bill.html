@@ -22,24 +22,24 @@
     <div data-options="region:'north'" style="width:100%;height:15%;">
         <!--取餐号-->
         <div class="bill-search-area-textbox-dev">
-            <input id="mealNumId" class="easyui-textbox" data-options="type:'text',label:'取餐号:',labelPosition: 'before',labelWidth:50,prompt: '请输入取餐号'" style="width: 95%;" >
+            <input id="mealNumId" class="easyui-textbox" data-options="validType:'poInt(this)',type:'text',label:'取餐号:',labelPosition: 'before',labelWidth:50,prompt: '请输入取餐号'" style="width: 95%;" >
         </div>
         <!--订单号-->
         <div class="bill-search-area-textbox-dev">
-            <input id="orderNum" class="easyui-textbox" data-options="type:'text',label:'订单号:',labelPosition: 'before',labelWidth:50,prompt: '请输入订单号'" style="width:95%">
+            <input id="orderNum" class="easyui-textbox" data-options="validType:'poInt(this)',type:'text',label:'订单号:',labelPosition: 'before',labelWidth:50,prompt: '请输入订单号'" style="width:95%">
         </div>
         <!--消费金额-->
         <div class="bill-search-area-textbox-dev">
-            <input id="consumerMoneyId" class="easyui-textbox" data-options="type:'text',label:'消费金额:',labelPosition: 'before',labelWidth:63,prompt: '请输入消费金额'" style="width:98%">
+            <input id="consumerMoneyId" class="easyui-textbox" data-options="validType:'poFloat(this)',type:'text',label:'消费金额:',labelPosition: 'before',labelWidth:63,prompt: '请输入消费金额'" style="width:98%">
         </div>
         <!--时间范围-->
         <div style="float: left;margin-top:10px;margin-left:15px;">
             <!--开始时间-->
             <span>开始时间:</span>
-            <input id="billStartTimeId" class="easyui-datetimebox" style="width: 250px">
+            <input id="billStartTimeId" class="easyui-datetimebox" validType="poInt(this)" style="width: 250px">
             <!--结束时间-->
             <span style="margin-left:15px;">结束时间:</span>
-            <input id="billEndTimeId" class="easyui-datetimebox" style="width: 250px">
+            <input id="billEndTimeId" class="easyui-datetimebox" validType="poInt(this)" style="width: 250px">
         </div>
         <!--查询按钮-->
         <a id="billSearchButtonId" href="#" class="easyui-linkbutton" style="margin-top:10px;margin-left:20px;width:100px;" >查询</a>
@@ -69,7 +69,7 @@
             {"id":1,"orderNum":"FL-DLH-02","mealNum":"Persian","totalPrice":"12.00","createTime":"EST-17"},
             {"id":1,"orderNum":"AV-CB-01","mealNum":"Amazon Parrot","totalPrice":"92.00","createTime":"EST-18"}
         ]
-    }
+    };
     // 实例化已选菜品表格控件
     var billDataListTable = $('#billDataListTable').datagrid({
         data: billData,
@@ -154,17 +154,16 @@
                 beforePageText: '第',
                 afterPageText: '页 共 {pages}页',
                 displayMsg: '共 {total}条记录',
-                onSelectPage: function (page, pageSize) {
+                onSelectPage: function (pageNum, pageSize) {
                     console.info("onSelect in");
-                    console.info(page);
+                    console.info(pageNum);
                     console.info(pageSize);
-                },
-                onRefresh: function (pageNumber, pageSize) {
-                    console.info("onRefresh in");
-                    console.warn(pageNumber);
-                    console.warn(pageSize);
+                    // 触发查询按钮单击事件
+                    $('#billSearchButtonId').click();
                 }
             });
+            // 触发查询按钮单击事件
+            $('#billSearchButtonId').click();
         }
     });
     // 实例化查询条件结束时间组件
@@ -193,14 +192,43 @@
             });
         }
     });
+    // 重置按钮单击事件
+    $('#billResetButtonId').bind('click',function () {
+        // 清空消费金额
+        $('#consumerMoneyId').textbox('reset');
+        // 清空取餐号
+        $('#mealNumId').textbox('reset');
+        // 清空订单号
+        $('#orderNum').textbox('reset');
+        // 清空开始时间
+        billDateBoxStartTime.datetimebox('setValue','');
+        // 清空结束时间
+        billDateBoxEndTime.datetimebox('setValue','');
+        // 触发查询按钮单击事件
+        $('#billSearchButtonId').click();
+    });
     // 查询按钮绑定单击事件
     $('#billSearchButtonId').bind('click', function(){
+        // 获取消费金额验证结果
+        var conPriceValid = $('#consumerMoneyId').textbox('isValid');
+        // 获取取餐号验证结果
+        var mealNumValid = $('#mealNumId').textbox('isValid');
+        // 获取订单号验证结果
+        var orderNumValid = $('#orderNum').textbox('isValid');
+        // 获取开始时间验证结果
+        var startTimeVaild = billDateBoxStartTime.datetimebox('isValid');
+        // 获取结束时间验证结果
+        var endTimeValid = billDateBoxEndTime.datetimebox('isValid');
+        // 获取查询条件验证结果，有验证失败的结束操作
+        if(!conPriceValid || !mealNumValid || !orderNumValid || !startTimeVaild || !endTimeValid){
+            return false;
+        }
         // 获取消费金额
-        var conPriceVal = $('#consumerMoneyId').val();
+        var conPriceVal = $('#consumerMoneyId').textbox('getValue');
         // 获取取餐号
-        var mealNumVal = $('#mealNumId').val();
+        var mealNumVal = $('#mealNumId').textbox('getValue');
         // 获取订单号
-        var orderNumVal = $('#orderNum').val();
+        var orderNumVal = $('#orderNum').textbox('getValue');
         // 开始时间
         var startTime = billDateBoxStartTime.datetimebox('getValue');
         // 结束时间
@@ -211,6 +239,21 @@
         console.info(startTime);
         console.info(endTime);
 
+    });
+    // 重写验证规格，验证是否为正整数和小数点
+    $.extend($.fn.validatebox.defaults.rules, {
+        poFloat: {
+            validator: function(value, param){
+                return /^\d+(\.\d+)?$/i.test(value);
+            },
+            message: '请输入正确的金额!'
+        },
+        poInt: {
+            validator: function(value, param){
+                return /(^[1-9]\d*$)/.test(value);
+            },
+            message: '请输入正确的值!'
+        }
     });
     // 格式化账单时间查询条件
     function billSearchTimeFormatter(date) {
@@ -241,7 +284,6 @@
             return new Date();
         }
     };
-    
 </script>
 </body>
 </html>
