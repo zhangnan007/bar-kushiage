@@ -2,6 +2,7 @@ package com.bar.kushiage.controller;
 
 import com.bar.kushiage.common.Util;
 import com.bar.kushiage.model.vo.order.OrderVo;
+import com.bar.kushiage.model.vo.order.QueryBillParamVo;
 import com.bar.kushiage.service.FoodService;
 import com.bar.kushiage.service.OrderService;
 import org.slf4j.Logger;
@@ -49,5 +50,31 @@ public class OrderController {
             logger.error("order controller submit error", e);
             return Boolean.FALSE;
         }
+    }
+
+    @RequestMapping(value = "/queryBillByParam")
+    @ResponseBody
+    public String queryBillByParam(@RequestBody QueryBillParamVo queryBillParamVo) {
+        // 构造结果集
+        try {
+            logger.info("order controller queryBillByParam start");
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("order controller queryBillByParam error", e);
+        }
+            return  null;
+    }
+
+    @RequestMapping(value = "/queryBillById")
+    @ResponseBody
+    public String queryBillById(@RequestBody Long OrderId) {
+        // 构造结果集
+        try {
+            logger.info("order controller queryBillById start");
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("order controller queryBillById error", e);
+        }
+            return  null;
     }
 }

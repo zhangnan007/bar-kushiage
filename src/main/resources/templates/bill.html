@@ -36,10 +36,10 @@
         <div style="float: left;margin-top:10px;margin-left:15px;">
             <!--开始时间-->
             <span>开始时间:</span>
-            <input id="billStartTimeId" class="easyui-datetimebox" validType="poInt(this)" style="width: 250px">
+            <input id="billStartTimeId" class="easyui-datetimebox" editable="fasle" validType="poDate(this)" style="width: 250px">
             <!--结束时间-->
             <span style="margin-left:15px;">结束时间:</span>
-            <input id="billEndTimeId" class="easyui-datetimebox" validType="poInt(this)" style="width: 250px">
+            <input id="billEndTimeId" class="easyui-datetimebox" editable="fasle" validType="poDate(this)" style="width: 250px">
         </div>
         <!--查询按钮-->
         <a id="billSearchButtonId" href="#" class="easyui-linkbutton" style="margin-top:10px;margin-left:20px;width:100px;" >查询</a>
@@ -142,7 +142,9 @@
             $("a[name='billDataListTableOperateId']").linkbutton({plain: true});
             // 每行操作绑定单击事件
             $("a[name='billDataListTableOperateId']").bind('click', function () {
-                console.info("xxxxxx");
+                // 获取当前行的ID值
+
+                // 获取数据
             });
             // 设置table只有底线
             $('#billDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
@@ -155,15 +157,10 @@
                 afterPageText: '页 共 {pages}页',
                 displayMsg: '共 {total}条记录',
                 onSelectPage: function (pageNum, pageSize) {
-                    console.info("onSelect in");
-                    console.info(pageNum);
-                    console.info(pageSize);
-                    // 触发查询按钮单击事件
-                    $('#billSearchButtonId').click();
+                    // 查询账单数据
+                    queryBillDataByParam();
                 }
             });
-            // 触发查询按钮单击事件
-            $('#billSearchButtonId').click();
         }
     });
     // 实例化查询条件结束时间组件
@@ -209,6 +206,10 @@
     });
     // 查询按钮绑定单击事件
     $('#billSearchButtonId').bind('click', function(){
+        queryBillDataByParam();
+    });
+    // 根据条件查询账单数据
+    function queryBillDataByParam() {
         // 获取消费金额验证结果
         var conPriceValid = $('#consumerMoneyId').textbox('isValid');
         // 获取取餐号验证结果
@@ -223,36 +224,101 @@
         if(!conPriceValid || !mealNumValid || !orderNumValid || !startTimeVaild || !endTimeValid){
             return false;
         }
+        // 构造查询条件对象
+        var queryParam = new Object();
         // 获取消费金额
-        var conPriceVal = $('#consumerMoneyId').textbox('getValue');
+        queryParam.conPrice = $('#consumerMoneyId').textbox('getValue');
         // 获取取餐号
-        var mealNumVal = $('#mealNumId').textbox('getValue');
+        queryParam.mealNum = $('#mealNumId').textbox('getValue');
         // 获取订单号
-        var orderNumVal = $('#orderNum').textbox('getValue');
+        queryParam.orderNum = $('#orderNum').textbox('getValue');
         // 开始时间
-        var startTime = billDateBoxStartTime.datetimebox('getValue');
+        queryParam.startTime = billDateBoxStartTime.datetimebox('getValue');
         // 结束时间
-        var endTime = billDateBoxEndTime.datetimebox('getValue');
-        console.info(mealNumVal);
-        console.info(orderNumVal);
-        console.info(conPriceVal);
-        console.info(startTime);
-        console.info(endTime);
-
-    });
+        queryParam.endTime = billDateBoxEndTime.datetimebox('getValue');
+        // 获取当前页码
+        queryParam.currPageNum = $('#billDataListTable').datagrid('getPager').data("pagination").options.pageNumber;
+        // 获取账单数据
+        $.ajax({
+            //请求方式
+            type: "POST",
+            contentType: "application/json;charset=UTF-8",
+            //请求地址
+            url: "order/queryBillByParam",
+            //数据，json字符串
+            data: JSON.stringify(queryParam),
+            //请求成功
+            success: function (result) {
+                if(result){
+                    // 弹出操作成功提示框
+                    $.messager.show({
+                        ok:'确定',
+                        cancel:'取消',
+                        title:'提示',
+                        msg:'操作成功!',
+                        showType:'null',
+                        style:{
+                            right:'',
+                            top:document.body.scrollTop+document.documentElement.scrollTop,
+                            bottom:''
+                        }
+                    });
+                } else {
+                    $.messager.show({
+                        ok:'确定',
+                        cancel:'取消',
+                        title:'提示',
+                        msg:'操作失败，请检查后重试!',
+                        showType:'null',
+                        style:{
+                            right:'',
+                            top:document.body.scrollTop+document.documentElement.scrollTop,
+                            bottom:''
+                        }
+                    });
+                }
+            },
+            //请求失败，包含具体的错误信息
+            error: function (e) {
+                console.log(e.status);
+                console.log(e.responseText);
+                $.messager.show({
+                    ok:'确定',
+                    cancel:'取消',
+                    title:'提示',
+                    msg:'操作失败，请检查后重试!',
+                    showType:'null',
+                    style:{
+                        right:'',
+                        top:document.body.scrollTop+document.documentElement.scrollTop,
+                        bottom:''
+                    }
+                });
+            }
+        });
+    }
     // 重写验证规格，验证是否为正整数和小数点
     $.extend($.fn.validatebox.defaults.rules, {
         poFloat: {
             validator: function(value, param){
+                // 验证带小数点数
                 return /^\d+(\.\d+)?$/i.test(value);
             },
             message: '请输入正确的金额!'
         },
         poInt: {
             validator: function(value, param){
+                // 验证正整数
                 return /(^[1-9]\d*$)/.test(value);
             },
             message: '请输入正确的值!'
+        },
+        poDate: {
+            validator: function(value, param){
+                // 验证日期格式为 yyyy-MM-dd HH:mm
+                return /^\d{4,}\-(?:0?\d|1[12])\-(?:[012]?\d|3[01]) (?:[01]?\d|2[0-4]):(?:[0-5]?\d|60)$/.test(value);
+            },
+            message: '请输入正确的日期!'
         }
     });
     // 格式化账单时间查询条件
