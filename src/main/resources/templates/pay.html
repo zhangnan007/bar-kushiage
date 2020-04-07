@@ -178,14 +178,12 @@
                     resizable: false,
                     title: '操作',
                     formatter: function (value, row, index) {
-                        return '<a href="#" name="operate" class="easyui-linkbutton" ></a>';
+                        return '<a href="#" name="operate" plain=true,iconCls="icon-cancel" class="easyui-linkbutton" ></a>';
                     }
                 }
             ]
         ],
         onLoadSuccess: function (data) {
-            // 每行操作添加icon
-            $("a[name='operate']").linkbutton({plain:true,iconCls:'icon-cancel'});
             // 每行操作绑定单击事件
             $("a[name='operate']").bind('click',function () {
                 // 删除支付记录操作确认后需要还原原始金额

@@ -93,7 +93,8 @@ public class OrderServiceImpl implements OrderService {
                 vo.setOrderNum(order.getOrderNum());
                 vo.setMealNum(order.getMealNum());
                 vo.setTotalPrice(order.getConsumePrice());
-                vo.setCreateTime(order.getCreateTime());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                vo.setCreateTime(sdf.format(order.getCreateTime()));
                 rows.add(vo);
             });
             result.setTotal(page.getTotal());

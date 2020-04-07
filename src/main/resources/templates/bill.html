@@ -120,21 +120,14 @@
                     halign: 'center',
                     resizable: false,
                     formatter: function (value, row, index) {
-                        return '<a href="#" name="billDataListTableOperateId" class="easyui-linkbutton" >详情</a>';
+                        return '<a href="#" name="billOperDetails" onclick="javascript:showBillDataDetails(' + row.id + ')" class="easyui-linkbutton" >详情</a>';
                     }
                 }
             ]
         ],
         onLoadSuccess: function (data) {
-            // 每行操作添加icon
-            $("a[name='billDataListTableOperateId']").linkbutton({plain: true});
-            // 每行操作绑定单击事件
-            $("a[name='billDataListTableOperateId']").bind('click', function () {
-                // 获取当前行的ID值
-
-                // 获取数据
-
-            });
+            // 给详情按钮添加效果
+            $("a[name='billOperDetails']").linkbutton({plain:true});
             // 设置table只有底线
             $('#billDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
             // 获取分页分页
@@ -152,6 +145,10 @@
             });
         }
     });
+    // 展示账单详情页面
+    function showBillDataDetails(id){
+        console.info(id);
+    };
     // 实例化查询条件结束时间组件
     var billDateBoxEndTime = $('#billEndTimeId').datetimebox({
         showSeconds: false,

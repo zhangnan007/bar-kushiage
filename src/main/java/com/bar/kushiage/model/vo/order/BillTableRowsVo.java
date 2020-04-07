@@ -13,5 +13,5 @@ public class BillTableRowsVo {
     Integer orderNum; // 订单号
     Integer mealNum; // 取餐号
     Double totalPrice; // 消费金额
-    Date createTime; // 下单时间
+    String createTime; // 下单时间
 }
