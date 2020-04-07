@@ -3,12 +3,13 @@ package com.bar.kushiage.dao;
 import com.bar.kushiage.model.dto.Order;
 import com.bar.kushiage.model.dto.OrderFoodLog;
 import com.bar.kushiage.model.dto.OrderPayLog;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import com.bar.kushiage.model.vo.order.OrderVo;
+import com.bar.kushiage.model.vo.order.QueryBillParamVo;
+import org.apache.ibatis.annotations.*;
 
+import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public interface OrderMapper {
@@ -21,6 +22,13 @@ public interface OrderMapper {
      */
     @Select("SELECT order_num as orderNum, create_time FROM `order` WHERE create_time > #{day} ORDER BY create_time LIMIT 1")
     public Map<String, Object> queryMaxOrderNumByDayTime(@Param("day") Date day);
+
+    /**
+     * 获取订单信息
+     * @param param
+     * @return
+     */
+    public List<Order> selectByParam(@Param("param") QueryBillParamVo param);
 
     /**
      * 插入订单数据

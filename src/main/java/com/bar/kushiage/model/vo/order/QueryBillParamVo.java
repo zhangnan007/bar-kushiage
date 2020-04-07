@@ -11,9 +11,9 @@ import java.util.Date;
 public class QueryBillParamVo {
     private Double conPrice; // 消费金额
     private Integer mealNum; // 取餐号
-    private Long orderNum; // 订单号
+    private Integer orderNum; // 订单号
     private Date startTime; // 开始时间
     private Date endTime; // 结束时间
-    private Integer pageNum; // 当前页码
-    private Integer pageSize = 30;
+    private Integer pageNum = 1; // 当前页码
+    private Integer pageSize = 2; // 每页显示条数
 }

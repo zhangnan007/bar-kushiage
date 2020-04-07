@@ -6,9 +6,14 @@ import com.bar.kushiage.dao.OrderMapper;
 import com.bar.kushiage.model.dto.Order;
 import com.bar.kushiage.model.dto.OrderFoodLog;
 import com.bar.kushiage.model.dto.OrderPayLog;
+import com.bar.kushiage.model.vo.order.BillTableRowsVo;
 import com.bar.kushiage.model.vo.order.OrderVo;
+import com.bar.kushiage.model.vo.order.QueryBillParamVo;
+import com.bar.kushiage.model.vo.order.QueryBillTableVo;
 import com.bar.kushiage.service.OrderService;
-import org.apache.commons.lang3.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,7 +46,10 @@ public class OrderServiceImpl implements OrderService {
         String begin = sdf.format(new Date()).split(" ")[0].trim() + " 00:00:00";
         Date day = sdf.parse(begin);
         // 获取订单号
-        int orderNum = generateOrderNum(day);
+        int num = generateOrderNum(day);
+        String tempOrderNum = "000" + num;
+        tempOrderNum = tempOrderNum.substring(tempOrderNum.length() - 4);
+        Integer orderNum = Integer.parseInt(begin.split(" ")[0].replace("-","").trim() + tempOrderNum);
         Order order = bulidOrder(orderVo, orderNum);
         orderMapper.insert(order);
         Date now = new Date();
@@ -67,6 +77,34 @@ public class OrderServiceImpl implements OrderService {
         });
         return Boolean.TRUE;
 
+    }
+
+    @Override
+    public QueryBillTableVo queryByParam(QueryBillParamVo queryBillParamVo) {
+        // 分页插件: 查询第1页，每页10行
+        Page<Order> page = PageHelper.startPage(queryBillParamVo.getPageNum(), queryBillParamVo.getPageSize());
+        List<Order> orderInfo = orderMapper.selectByParam(queryBillParamVo);
+        QueryBillTableVo result = new QueryBillTableVo();
+        List<BillTableRowsVo> rows = new ArrayList<BillTableRowsVo>();
+        if(CollectionUtils.isNotEmpty(orderInfo)){
+            orderInfo.forEach(order -> {
+                BillTableRowsVo vo = new BillTableRowsVo();
+                vo.setId(order.getId());
+                vo.setOrderNum(order.getOrderNum());
+                vo.setMealNum(order.getMealNum());
+                vo.setTotalPrice(order.getConsumePrice());
+                vo.setCreateTime(order.getCreateTime());
+                rows.add(vo);
+            });
+            result.setTotal(page.getTotal());
+        }
+        result.setRows(rows);
+        return result;
+    }
+
+    @Override
+    public OrderVo queryDetailsById(Long orderId) {
+        return null;
     }
 
     /**

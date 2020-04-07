@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bar.kushiage.dao.OrderMapper">
+    <resultMap id="orderMap" type="com.bar.kushiage.model.dto.Order">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_num" jdbcType="INTEGER" property="orderNum"/>
+        <result column="meal_num" jdbcType="INTEGER" property="mealNum"/>
+        <result column="reality_price" jdbcType="DOUBLE" property="realityPrice"/>
+        <result column="consume_price" jdbcType="DOUBLE" property="consumePrice"/>
+        <result column="charge_price" jdbcType="DOUBLE" property="chargePrice"/>
+        <result column="status" jdbcType="INTEGER" property="status" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    </resultMap>
+
+
+    <select id="selectByParam" parameterType="com.bar.kushiage.model.vo.order.QueryBillParamVo" resultMap="orderMap">
+        SELECT
+            id,
+            order_num,
+            meal_num,
+            consume_price,
+            create_time,
+            modify_time
+        FROM
+            `order`
+        WHERE `status` = 1
+        <if test="param.conPrice != null">
+          AND consume_price = #{param.conPrice}
+        </if>
+        <if test="param.mealNum != null">
+          AND meal_num = #{param.mealNum}
+        </if>
+        <if test="param.orderNum != null">
+          AND order_num = #{param.orderNum}
+        </if>
+        <if test="param.startTime != null">
+          AND create_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+          AND modify_time &lt;= #{param.endTime}
+        </if>
+        order by modify_time desc
+    </select>
+
+</mapper>

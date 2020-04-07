@@ -3,6 +3,7 @@ package com.bar.kushiage.controller;
 import com.bar.kushiage.common.Util;
 import com.bar.kushiage.model.vo.order.OrderVo;
 import com.bar.kushiage.model.vo.order.QueryBillParamVo;
+import com.bar.kushiage.model.vo.order.QueryBillTableVo;
 import com.bar.kushiage.service.FoodService;
 import com.bar.kushiage.service.OrderService;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -54,23 +56,25 @@ public class OrderController {
 
     @RequestMapping(value = "/queryBillByParam")
     @ResponseBody
-    public String queryBillByParam(@RequestBody QueryBillParamVo queryBillParamVo) {
+    public QueryBillTableVo queryBillByParam(QueryBillParamVo queryBillParamVo) {
         // 构造结果集
         try {
             logger.info("order controller queryBillByParam start");
+            return orderService.queryByParam(queryBillParamVo);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("order controller queryBillByParam error", e);
         }
-            return  null;
+        return  null;
     }
 
     @RequestMapping(value = "/queryBillById")
     @ResponseBody
-    public String queryBillById(@RequestBody Long OrderId) {
+    public OrderVo queryBillById(@RequestBody Long OrderId) {
         // 构造结果集
         try {
             logger.info("order controller queryBillById start");
+
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("order controller queryBillById error", e);

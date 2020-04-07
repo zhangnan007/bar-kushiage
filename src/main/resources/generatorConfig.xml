@@ -40,6 +40,6 @@
         <!--<table tableName="food_type" domainObjectName="FoodType" ></table>-->
         <!--<table tableName="order" domainObjectName="Order" ></table>-->
         <!--<table tableName="order_food_log" domainObjectName="OrderFoodLog" ></table>-->
-        <!--<table tableName="order_pay_log" domainObjectName="OrderPayLog" ></table>-->
+        <table tableName="order_pay_log" domainObjectName="OrderPayLog" ></table>
     </context>
 </generatorConfiguration>
