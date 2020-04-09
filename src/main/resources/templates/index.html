@@ -31,17 +31,21 @@
                 children: [{
                     text:'订单'
                 },{
+                    text:'叫号取餐'
+                },{
                     text:'账单'
                 }]
             }],
             onSelect: function (item) {
-                // console.info(item);
                 if(item.text == '订单'){
                     // 加载订单页面
                     $('#pageContent').panel('refresh','order');
-                }else{
+                }else if(item.text == '账单') {
                     // 加载账单页面
                     $('#pageContent').panel('refresh','bill');
+                } else {
+                    // 加载叫号页面
+                    $('#pageContent').panel('refresh','takeMeals');
                 }
             },
             border: false,

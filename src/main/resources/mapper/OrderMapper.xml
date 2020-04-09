@@ -3,7 +3,7 @@
 <mapper namespace="com.bar.kushiage.dao.OrderMapper">
     <resultMap id="orderMap" type="com.bar.kushiage.model.dto.Order">
         <id column="id" jdbcType="BIGINT" property="id"/>
-        <result column="order_num" jdbcType="INTEGER" property="orderNum"/>
+        <result column="order_num" jdbcType="CHAR" property="orderNum"/>
         <result column="meal_num" jdbcType="INTEGER" property="mealNum"/>
         <result column="reality_price" jdbcType="DOUBLE" property="realityPrice"/>
         <result column="consume_price" jdbcType="DOUBLE" property="consumePrice"/>
@@ -31,7 +31,7 @@
         <if test="param.mealNum != null">
           AND meal_num = #{param.mealNum}
         </if>
-        <if test="param.orderNum != null">
+        <if test="param.orderNum != null and param.orderNum != ''">
           AND order_num = #{param.orderNum}
         </if>
         <if test="param.startTime != null">

@@ -7,8 +7,8 @@ import lombok.Data;
  */
 @Data
 public class OrderPayLogVo {
-    String id;
-    String payVal; // 支付类型
-    String payTypeText; // 支付类型显示值
-    String payPrice; // 支付金额
+    private String id;
+    private String payVal; // 支付类型
+    private String payTypeText; // 支付类型显示值
+    private String payPrice; // 支付金额
 }

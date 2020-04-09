@@ -6,6 +6,7 @@ import com.bar.kushiage.model.vo.order.QueryBillParamVo;
 import com.bar.kushiage.model.vo.order.QueryBillTableVo;
 import com.bar.kushiage.service.FoodService;
 import com.bar.kushiage.service.OrderService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.sql.Timestamp;
 
 /**
  * 订单controller
@@ -60,7 +63,17 @@ public class OrderController {
         // 构造结果集
         try {
             logger.info("order controller queryBillByParam start");
-            return orderService.queryByParam(queryBillParamVo);
+            if(queryBillParamVo != null){
+                // 补全时间秒
+                if(StringUtils.isNotBlank(queryBillParamVo.getStimeStr())){
+                    queryBillParamVo.setStartTime(Timestamp.valueOf(queryBillParamVo.getStimeStr() + ":00"));
+                }
+                if(StringUtils.isNotBlank(queryBillParamVo.getEtimeStr())){
+                    queryBillParamVo.setEndTime(Timestamp.valueOf(queryBillParamVo.getEtimeStr() + ":59"));
+                }
+            }
+            QueryBillTableVo result = orderService.queryByParam(queryBillParamVo);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("order controller queryBillByParam error", e);

@@ -6,6 +6,10 @@ import com.jacob.com.Variant;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 公共工具类
@@ -101,6 +105,36 @@ public class Util {
             System.out.println("文件已经被成功删除");
         }
         return result;
+    }
+
+    /**
+     * string转date
+     * @param date
+     * @return
+     */
+    public static String parseTimestampToString(Timestamp date) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+    }
+
+    /**
+     * string转date
+     * @param date
+     * @return
+     * @throws ParseException
+     */
+    public static Date parseStrToDate(String date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.parse(date);
+    }
+
+    /**
+     * date转String
+     * @param date
+     * @return
+     */
+    public static String parseDateToStr(Date date){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(date);
     }
 
 //    public static void main(String[] args){

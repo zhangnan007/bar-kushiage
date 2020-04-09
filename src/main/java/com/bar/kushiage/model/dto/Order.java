@@ -2,13 +2,14 @@ package com.bar.kushiage.model.dto;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
 public class Order {
     private Long id;
 
-    private Integer orderNum;
+    private String orderNum;
 
     private Integer mealNum;
 
@@ -20,8 +21,8 @@ public class Order {
 
     private Integer status;
 
-    private Date createTime;
+    private Timestamp createTime;
 
-    private Date modifyTime;
+    private Timestamp modifyTime;
 
 }

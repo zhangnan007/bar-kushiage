@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
  */
 @Data
 public class OrderVo {
-    List<OrderFoodVo> foodList; // 订单菜品
-    List<OrderPayLogVo> payInfo; // 支付记录
-    Long id; // 订单ID
-    Long orderNum; // 订单号
-    Integer mealNum; // 取餐号
-    String totalMoney; // 总消费金额
-    String paidMoney; // 已付金额
-    String changeMoney; // 找零金额
+    private List<OrderFoodVo> foodList; // 订单菜品
+    private List<OrderPayLogVo> payInfo; // 支付记录
+    private Long id; // 订单ID
+    private Long orderNum; // 订单号
+    private Integer mealNum; // 取餐号
+    private String totalMoney; // 总消费金额
+    private String paidMoney; // 已付金额
+    private String changeMoney; // 找零金额
 
     public String bulidFoodIds(){
         return this.foodList.stream().map(OrderFoodVo :: getId).collect(Collectors.joining(";"));

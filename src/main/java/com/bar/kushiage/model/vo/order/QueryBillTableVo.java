@@ -9,6 +9,6 @@ import java.util.List;
  */
 @Data
 public class QueryBillTableVo {
-    Long total = 0L; // 总条数
-    List<BillTableRowsVo> rows;
+    private Long total = 0L; // 总条数
+    private List<BillTableRowsVo> rows;
 }

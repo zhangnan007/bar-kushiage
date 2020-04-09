@@ -2,6 +2,7 @@ package com.bar.kushiage.model.vo.order;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -11,9 +12,11 @@ import java.util.Date;
 public class QueryBillParamVo {
     private Double conPrice; // 消费金额
     private Integer mealNum; // 取餐号
-    private Integer orderNum; // 订单号
-    private Date startTime; // 开始时间
-    private Date endTime; // 结束时间
+    private String orderNum; // 订单号
+    private String stimeStr; // 映射前端开始时间
+    private String etimeStr; // 映射前端结束时间
+    private Timestamp startTime; // 后台逻辑用开始时间
+    private Timestamp endTime; // 后台逻辑用结束时间
     private Integer pageNum = 1; // 当前页码
     private Integer pageSize = 2; // 每页显示条数
 }

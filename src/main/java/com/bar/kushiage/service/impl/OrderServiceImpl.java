@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         int num = generateOrderNum(day);
         String tempOrderNum = "000" + num;
         tempOrderNum = tempOrderNum.substring(tempOrderNum.length() - 4);
-        Integer orderNum = Integer.parseInt(begin.split(" ")[0].replace("-","").trim() + tempOrderNum);
+        String orderNum = begin.split(" ")[0].replace("-","").trim() + tempOrderNum;
         Order order = bulidOrder(orderVo, orderNum);
         orderMapper.insert(order);
         Date now = new Date();
@@ -93,8 +94,7 @@ public class OrderServiceImpl implements OrderService {
                 vo.setOrderNum(order.getOrderNum());
                 vo.setMealNum(order.getMealNum());
                 vo.setTotalPrice(order.getConsumePrice());
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                vo.setCreateTime(sdf.format(order.getCreateTime()));
+                vo.setCreateTime(Util.parseTimestampToString(order.getCreateTime()));
                 rows.add(vo);
             });
             result.setTotal(page.getTotal());
@@ -114,7 +114,7 @@ public class OrderServiceImpl implements OrderService {
      * @param orderVo
      * @return
      */
-    private Order bulidOrder(OrderVo orderVo, int orderNum) {
+    private Order bulidOrder(OrderVo orderVo, String orderNum) {
         Order order = new Order();
         order.setMealNum(orderVo.getMealNum());
         order.setOrderNum(orderNum);
@@ -125,9 +125,9 @@ public class OrderServiceImpl implements OrderService {
         // 实收金额
         order.setRealityPrice(Util.parsePrice(orderVo.getPaidMoney()));
         order.setStatus(ConstantEnum.DB_STATUS_NORMAL.getCode());
-        Date now = new Date();
-        order.setCreateTime(now);
-        order.setModifyTime(now);
+        String now = Util.parseDateToStr(new Date());
+        order.setCreateTime(Timestamp.valueOf(now));
+        order.setModifyTime(order.getCreateTime());
         return order;
 
     }
