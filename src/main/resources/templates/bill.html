@@ -53,6 +53,7 @@
     </div>
 </div>
 <script>
+$(function () {
     // 计算宽度百分比
     function billFixWidth(percent) {
         return document.body.clientWidth * percent; //这里你可以自己做调整
@@ -120,7 +121,7 @@
                     halign: 'center',
                     resizable: false,
                     formatter: function (value, row, index) {
-                        return '<a href="#" name="billOperDetails" onclick="javascript:showBillDataDetails(' + row.id + ')" class="easyui-linkbutton" >详情</a>';
+                        return '<a href="#" rowId="'+ row.id + '" name="billOperDetails" class="easyui-linkbutton" >查看详情</a>';
                     }
                 }
             ]
@@ -128,27 +129,34 @@
         onLoadSuccess: function (data) {
             // 给详情按钮添加效果
             $("a[name='billOperDetails']").linkbutton({plain:true});
+            // 绑定操作点击事件
+            $("a[name='billOperDetails']").bind('click',function () {
+                // 获取当前点击行的id字段值
+                var id = $(this).attr("rowId");
+                // 调用展示详情函数
+                showBillDataDetails(id);
+            });
             // 设置table只有底线
             $('#billDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
-            // 获取分页分页
-            $('#billDataListTable').datagrid('getPager').pagination({
-                pageNumber: 1,
-                pageSize: 3,
-                showPageList: false,
-                beforePageText: '第',
-                afterPageText: '页 共 {pages}页',
-                displayMsg: '共 {total}条记录',
-                onSelectPage: function (pageNum, pageSize) {
-                    // 查询账单数据
-                    loadBillTableData(pageNum);
-                }
-            });
         }
     });
     // 展示账单详情页面
     function showBillDataDetails(id){
-        console.info(id);
+        
     };
+    // 实例化表格分页组件
+    billDataListTable.datagrid('getPager').pagination({
+        pageNumber: 1,
+        pageSize: 1,
+        showPageList: false,
+        beforePageText: '第',
+        afterPageText: '页 共 {pages}页',
+        displayMsg: '共 {total}条记录',
+        onSelectPage: function (pageNum, pageSize) {
+            // 查询账单数据
+            queryBillDataByParam(pageNum);
+        }
+    });
     // 实例化查询条件结束时间组件
     var billDateBoxEndTime = $('#billEndTimeId').datetimebox({
         showSeconds: false,
@@ -207,11 +215,15 @@
         if(!conPriceValid || !mealNumValid || !orderNumValid || !startTimeVaild || !endTimeValid){
             return false;
         }
+        var pageNum = billDataListTable.datagrid('getPager').data("pagination").options.pageNumber;
         // 查询账单数据
-        queryBillDataByParam();
+        queryBillDataByParam(pageNum);
     });
     // 根据条件查询账单数据
-    function queryBillDataByParam() {
+    function queryBillDataByParam(newPageNum) {
+        if(typeof(newPageNum) == "undefined"){
+            newPageNum = 1;
+        }
         // 获取账单数据
         $.ajax({
             //请求方式
@@ -232,7 +244,7 @@
                 // 结束时间
                 etimeStr: billDateBoxEndTime.datetimebox('getValue'),
                 // 获取当前页码
-                pageNum: billDataListTable.datagrid('getPager').data("pagination").options.pageNumber
+                pageNum: newPageNum
             },
             //请求成功
             success: function (result) {
@@ -312,6 +324,7 @@
             return new Date();
         }
     };
+});
 </script>
 </body>
 </html>
