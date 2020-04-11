@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单详情</title>
+</head>
+<body>
+<!--获取要显示的orderId-->
+<input id="orderDetailsOrderIDInputId" type="hidden" th:value="${orderId}" />
+<!--easyui layout组件-->
+<div class="easyui-layout" style="width:100%;height:100%;">
+    <!--订单已选菜品列表-->
+    <div data-options="region:'west',split:true" title="菜品列表" style="width:30%;"></div>
+    <!--订单支付明细列表-->
+    <div data-options="region:'east',split:true" title="支付明细" style="width:15%;">
+        <!--支付明细table-->
+        <table id="orderDetailsPayTableId" title="支付明细" style="width:100%;height:100%"></table>
+    </div>
+    <!--订单其他信息显示区域-->
+    <div data-options="region:'center',title:'Center'"></div>
+</div>
+<script>
+    $(function () {
+        // 获取要展示详情的订单ID
+        var orderId = $('#orderDetailsOrderIDInputId').val();
+        // 实例化菜品table
+        // 实例化已选菜品表格控件
+        var selectedFoodTable = $('#selectedFoodTable').datagrid({
+            url: 'order/queryOrderFoodByOrderId?orderId=' + orderId,
+            fitColumns: true,
+            scrollbarSize: 13,
+            singleSelect: true,
+            showFooter: true,
+            columns: [
+                [
+                    {
+                        width: fixWidth(0.4),
+                        field: 'name',
+                        title: '品名',
+                        align: 'center',
+                        halign: 'center',
+                        resizable: false,
+                        formatter: function (value, row, index) {
+                            if (value.length > 5) {
+                                return '<span title="' + value + '">' + value + '</span>';
+                            } else {
+                                return value;
+                            }
+                        }
+                    },
+                    {
+                        width: fixWidth(0.15),
+                        field: 'num',
+                        align: 'right',
+                        halign: 'center',
+                        resizable: false,
+                        title: '数量'
+                    },
+                    {
+                        width: fixWidth(0.23),
+                        field: 'specs',
+                        align: 'right',
+                        halign: 'center',
+                        resizable: false,
+                        title: '规格',
+                        formatter: function (value, row, index) {
+                            if (typeof (value) != 'undefined' && value.length > 3) {
+                                return '<span title="' + value + '">' + value + '</span>';
+                            } else {
+                                return value;
+                            }
+                        }
+                    },
+                    {
+                        width: fixWidth(0.22),
+                        field: 'price',
+                        align: 'right',
+                        halign: 'center',
+                        resizable: false,
+                        title: '小计(元)'
+                    }
+                ]
+            ],
+            onLoadSuccess: function (data) {
+                // 删除已选菜品列表分隔线样式
+                removeTableLines();
+            }
+        });
+        // 实例化支付明细table
+        var payLogTable = $('#payLogTableId').datagrid({
+            url: 'order/queryOrderPayLogByOrderId?orderId=' + orderId,
+            fitColumns: true,
+            title:"支付明细",
+            scrollbarSize: 6,
+            singleSelect: true,
+            showFooter: true,
+            rownumbers: true,
+            columns: [
+                [
+                    {
+                        width: fixWidth(0.5),
+                        field: 'payTypeText',
+                        title: '渠道',
+                        align: 'center',
+                        halign: 'center',
+                        resizable: false
+                    },
+                    {
+                        width: fixWidth(0.5),
+                        field: 'payPrice',
+                        align: 'center',
+                        halign: 'center',
+                        resizable: false,
+                        title: '金额'
+                    }
+                ]
+            ],
+            // 删除支付记录列表分隔线样式
+            // $('#payLogTableId').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+        });
+    });
+</script>
+</body>
+</html>

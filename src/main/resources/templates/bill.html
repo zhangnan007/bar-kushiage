@@ -48,8 +48,10 @@
     </div>
     <!--底部数据显示区域-->
     <div data-options="region:'center',border:false">
-        <!--账单数据table-->
+        <!--订单数据table-->
         <table id="billDataListTable" style="width:100%;height:100%"></table>
+        <!--订单详情窗口-->
+        <div id="orderDetailsWin"></div>
     </div>
 </div>
 <script>
@@ -140,9 +142,23 @@ $(function () {
             $('#billDataListTable').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
         }
     });
+    // 实例化订单详情窗口组件
+    var orderDetailsWin = $('#orderDetailsWin').window({
+        title:'订单详情',
+        width:billFixWidth(0.95),
+        height:625,
+        maximized:true,
+        modal:true,
+        collapsible:false,
+        minimizable:false,
+        closed:true,
+    });
     // 展示账单详情页面
     function showBillDataDetails(id){
-        
+        // 刷新订单详情页面
+        orderDetailsWin.window('refresh', 'order/showDetails?orderId=' + id);
+        // 打开订单详情窗口
+        orderDetailsWin.window('open');
     };
     // 实例化表格分页组件
     billDataListTable.datagrid('getPager').pagination({

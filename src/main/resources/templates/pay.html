@@ -74,8 +74,8 @@
             </div>
             <!--支付记录表格区域-->
             <div data-options="region:'center',border:false,split:false" style="background-color: #EFEEEB">
-                <!--支付记录table-->
-                <table id="payLogTableId" title="支付记录" style="width:100%;height:100%"></table>
+                <!--支付明细table-->
+                <table id="payLogTableId" title="支付明细" style="width:100%;height:100%"></table>
             </div>
             <!--完成结账按钮区域-->
             <div data-options="region:'south',border:false,split:false" style="width:100%;height: 9%">
@@ -139,7 +139,7 @@
     </div>
 </div>
 <script>
-    // 实例化已选菜品表格控件
+    // 实例化支付明细组件
     var payLogTable = $('#payLogTableId').datagrid({
         data: [],
         fitColumns: true,

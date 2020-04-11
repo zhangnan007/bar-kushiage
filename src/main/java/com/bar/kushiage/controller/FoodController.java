@@ -38,7 +38,6 @@ public class FoodController {
             List<FoodTypeVo> types = foodService.findFoodType(traceId);
             return types;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("food controller findFoodType error,traceId: " + traceId, e);
         }
         return null;
@@ -58,7 +57,6 @@ public class FoodController {
             List<FoodVo> foods = foodService.findFoodByTypeAndCode(foodTypeId, foodCode, traceId);
             model.addAttribute("foods", foods);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("food controller queryFoods error,traceId: " + traceId, e);
         }
         return "foods";
@@ -89,7 +87,6 @@ public class FoodController {
             model.addAttribute("inMoney", initInMoney);
             return "pay";
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("food controller toPay error", e);
             return null;
         }
