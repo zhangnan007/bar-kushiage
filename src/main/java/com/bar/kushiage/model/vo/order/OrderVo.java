@@ -18,8 +18,10 @@ public class OrderVo {
     private String totalMoney; // 总消费金额
     private String paidMoney; // 已付金额
     private String changeMoney; // 找零金额
+    private String create_time; // 下单时间
+    private String modify_time; // 修改时间
 
-    public String bulidFoodIds(){
-        return this.foodList.stream().map(OrderFoodVo :: getId).collect(Collectors.joining(";"));
+    public String bulidFoodIds() {
+        return this.foodList.stream().map(OrderFoodVo::getId).collect(Collectors.joining(";"));
     }
 }

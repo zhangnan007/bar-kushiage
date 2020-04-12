@@ -10,7 +10,8 @@ public class OrderFoodVo {
     private String id; // 菜品唯一标识
     private String name; // 菜品名称
     private String specs; // 菜品规格
-    private Double price; // 价格
+    private Double price; // 点餐时菜品单价
+    private Double totalPrice; // 总价格
     private Integer num; // 数量
 
 }

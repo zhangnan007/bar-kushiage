@@ -31,6 +31,13 @@ public interface OrderMapper {
     public List<Order> selectByParam(@Param("param") QueryBillParamVo param);
 
     /**
+     * 获取指定订单信息
+     * @param id
+     * @return
+     */
+    public Order selectById(@Param("id") Long id);
+
+    /**
      * 插入订单数据
      *
      * @param order

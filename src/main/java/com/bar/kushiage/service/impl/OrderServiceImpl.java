@@ -2,14 +2,12 @@ package com.bar.kushiage.service.impl;
 
 import com.bar.kushiage.common.Util;
 import com.bar.kushiage.common.constant.ConstantEnum;
+import com.bar.kushiage.common.constant.PayTypeConstantEnum;
+import com.bar.kushiage.dao.OrderFoodLogMapper;
 import com.bar.kushiage.dao.OrderMapper;
-import com.bar.kushiage.model.dto.Order;
-import com.bar.kushiage.model.dto.OrderFoodLog;
-import com.bar.kushiage.model.dto.OrderPayLog;
-import com.bar.kushiage.model.vo.order.BillTableRowsVo;
-import com.bar.kushiage.model.vo.order.OrderVo;
-import com.bar.kushiage.model.vo.order.QueryBillParamVo;
-import com.bar.kushiage.model.vo.order.QueryBillTableVo;
+import com.bar.kushiage.dao.OrderPayLogMapper;
+import com.bar.kushiage.model.dto.*;
+import com.bar.kushiage.model.vo.order.*;
 import com.bar.kushiage.service.OrderService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -20,13 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service("orderService")
@@ -38,6 +34,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderMapper orderMapper;
+    @Autowired
+    OrderFoodLogMapper orderFoodLogMapper;
+    @Autowired
+    OrderPayLogMapper orderPayLogMapper;
 
     @Transactional
     @Override
@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         int num = generateOrderNum(day);
         String tempOrderNum = "000" + num;
         tempOrderNum = tempOrderNum.substring(tempOrderNum.length() - 4);
-        String orderNum = begin.split(" ")[0].replace("-","").trim() + tempOrderNum;
+        String orderNum = begin.split(" ")[0].replace("-", "").trim() + tempOrderNum;
         Order order = bulidOrder(orderVo, orderNum);
         orderMapper.insert(order);
         Date now = new Date();
@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
         List<Order> orderInfo = orderMapper.selectByParam(queryBillParamVo);
         QueryBillTableVo result = new QueryBillTableVo();
         List<BillTableRowsVo> rows = new ArrayList<BillTableRowsVo>();
-        if(CollectionUtils.isNotEmpty(orderInfo)){
+        if (CollectionUtils.isNotEmpty(orderInfo)) {
             orderInfo.forEach(order -> {
                 BillTableRowsVo vo = new BillTableRowsVo();
                 vo.setId(order.getId());
@@ -105,8 +105,78 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderVo queryDetailsById(Long orderId) {
-        return null;
+        // 根据订单id查询订单信息
+        Order order = orderMapper.selectById(orderId);
+        // 构造订单vo
+        OrderVo result = new OrderVo();
+        if (order != null) {
+            result.setId(order.getId());
+            result.setOrderNum(Long.parseLong(order.getOrderNum()));
+            result.setMealNum(order.getMealNum());
+            result.setTotalMoney("￥ " + order.getConsumePrice());
+            result.setPaidMoney("￥ " + order.getRealityPrice());
+            result.setChangeMoney("￥ " + order.getChargePrice());
+            result.setCreate_time(Util.parseTimestampToString(order.getCreateTime()));
+            result.setModify_time(Util.parseTimestampToString(order.getModifyTime()));
+        }
+        return result;
     }
+
+    @Override
+    public Map<String, Object> queryOrderFoodByOrderId(Long orderId) {
+        OrderFoodLogExample orderFoodLogExample = new OrderFoodLogExample();
+        orderFoodLogExample.createCriteria().andOrderIdEqualTo(orderId).andStatusEqualTo(ConstantEnum.DB_STATUS_NORMAL.getCode());
+        // 获取有效的订单菜品明细
+        List<OrderFoodLog> orderFoods = orderFoodLogMapper.selectByExample(orderFoodLogExample);
+        // 订单菜品明细dto转vo
+        List<OrderFoodVo> rows = new ArrayList<OrderFoodVo>();
+        if (CollectionUtils.isNotEmpty(orderFoods)) {
+            orderFoods.forEach(of -> {
+                OrderFoodVo vo = new OrderFoodVo();
+                vo.setId(of.getId() + "");
+                vo.setName(of.getFoodName());
+                vo.setSpecs(of.getFoodSpecs());
+                vo.setPrice(of.getFoodPrice());
+                vo.setNum(of.getNum());
+                float temp = of.getFoodPrice().floatValue();
+                BigDecimal price = new BigDecimal(Double.toString((temp + 1)));
+                BigDecimal num = new BigDecimal(Double.toString(of.getNum()));
+                double totalPrice = price.multiply(num).doubleValue();// 相乘结果
+                vo.setTotalPrice(totalPrice);
+                rows.add(vo);
+            });
+        }
+        // 构造前台使用的结果集
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("total", rows.size());
+        result.put("rows", rows);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> queryOrderPayLogByOrderId(Long orderId) {
+        OrderPayLogExample orderPayLogExample = new OrderPayLogExample();
+        orderPayLogExample.createCriteria().andOrderIdEqualTo(orderId).andStatusEqualTo(ConstantEnum.DB_STATUS_NORMAL.getCode());
+        // 获取有效的订单支付明细
+        List<OrderPayLog> payLog = orderPayLogMapper.selectByExample(orderPayLogExample);
+        // 订单支付明细dto转vo
+        List<OrderPayLogVo> rows = new ArrayList<OrderPayLogVo>();
+        if (CollectionUtils.isNotEmpty(payLog)) {
+            payLog.forEach(pay -> {
+                OrderPayLogVo vo = new OrderPayLogVo();
+                vo.setId(pay.getId() + "");
+                vo.setPayTypeText(PayTypeConstantEnum.getValueOf(pay.getPayType()).getNote());
+                vo.setPayPrice("￥ " + pay.getPayPrice());
+                rows.add(vo);
+            });
+        }
+        // 构造前台使用的结果集
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("total", rows.size());
+        result.put("rows", rows);
+        return result;
+    }
+
 
     /**
      * 构造order对象

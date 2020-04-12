@@ -32,7 +32,6 @@ public class FoodController {
     @RequestMapping(value = "/queryFoodTypes")
     @ResponseBody
     public List<FoodTypeVo> queryFoodTypes(String traceId) {
-        // 构造结果集
         try {
             logger.info("food controller findFoodType start, traceId: " + traceId);
             List<FoodTypeVo> types = foodService.findFoodType(traceId);
@@ -71,7 +70,6 @@ public class FoodController {
      */
     @RequestMapping(value = "/toPay")
     public String toPay(String foodIds, String traceId, Model model) {
-        // 构造结果集
         try {
             logger.info("food controller toPay start");
             Double sumPrice = 0.00;

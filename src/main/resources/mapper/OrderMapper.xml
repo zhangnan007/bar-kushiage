@@ -13,6 +13,12 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     </resultMap>
 
+    <select id="selectById" parameterType="java.lang.Long" resultMap="orderMap">
+        select
+          *
+        from `order`
+        where id = #{id,jdbcType=BIGINT}
+    </select>
 
     <select id="selectByParam" parameterType="com.bar.kushiage.model.vo.order.QueryBillParamVo" resultMap="orderMap">
         SELECT
