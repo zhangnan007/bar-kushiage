@@ -6,22 +6,68 @@
     <title>订单详情</title>
 </head>
 <body>
+<style>
+    .order-details-info{
+        height: 50px;
+        width: 50%;
+        text-align: center;
+        line-height: 50px;
+        font-size: 15px;
+        float: left;
+    }
+</style>
 <!--获取要显示的orderId-->
-<input id="orderDetailsOrderIDInputId" type="hidden" th:value="${orderId}" />
+<input id="orderDetailsOrderIDInputId" type="hidden" th:value="${order.id}" />
 <!--easyui layout组件-->
 <div class="easyui-layout" style="width:100%;height:100%;">
     <!--订单菜品列表-->
-    <div data-options="region:'west',split:true" style="width:30%;">
+    <div data-options="region:'west',border:false" style="width:30%;">
         <!--已点菜品table-->
         <table id="orderDetailFoodListTableId" title="菜品明细" style="width:100%;height:100%"></table>
     </div>
     <!--订单支付明细列表-->
-    <div data-options="region:'east',split:true" style="width:15%;">
+    <div data-options="region:'east',border:false" style="width:15%;">
         <!--支付明细table-->
         <table id="orderDetailsPayTableId" title="支付明细" style="width:100%;height:100%"></table>
     </div>
     <!--订单其他信息显示区域-->
-    <div data-options="region:'center',title:'Center'"></div>
+    <div data-options="region:'center',border:false,title:'订单信息'">
+        <!--外层容器-->
+        <div style="width: 100%;height: 100%">
+            <div class="order-details-info">
+                <span>订单号：</span>
+                <span th:text="${order.orderNum}"></span>
+            </div>
+            <div class="order-details-info">
+                <span>消费金额：</span>
+                <span th:text="${order.totalMoney}"></span>
+            </div>
+            <div class="order-details-info">
+                <span>取餐号：</span>
+                <span th:text="${order.mealNum}"></span>
+            </div>
+            <div class="order-details-info">
+                <span>支付金额</span>
+                <span th:text="${order.paidMoney}"></span>
+            </div>
+            <div class="order-details-info">
+                <span>所选菜品数：</span>
+                <span id="orderDetailsFoodCountId"></span>
+            </div>
+            <div class="order-details-info">
+                <span>找零金额：</span>
+                <span th:text="${order.changeMoney}"></span>
+            </div>
+            <div class="order-details-info">
+                <span>所选菜品种类数：</span>
+                <span id="orderDetailsFoodTypeCountId"></span>
+            </div>
+            <div class="order-details-info">
+                <span>下单时间：</span>
+                <span th:text="${order.modify_time}"></span>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     $(function () {
@@ -29,17 +75,17 @@
         function orderDetailFixWidth(percent) {
             return document.body.clientWidth * percent; //这里你可以自己做调整
         };
-        // 获取要展示详情的订单ID
-        var orderId = $('#orderDetailsOrderIDInputId').val();
-        // 实例化菜品table
         // 实例化已选菜品表格控件
-        var selectedFoodTable = $('#orderDetailFoodListTableId').datagrid({
-            url: 'order/queryOrderFoodByOrderId?orderId=' + orderId,
+        $('#orderDetailFoodListTableId').datagrid({
+            url: 'order/queryOrderFoodByOrderId',
             fitColumns: true,
-            scrollbarSize: 10,
+            queryParams:{
+                orderId: $('#orderDetailsOrderIDInputId').val()
+            },
+            loadMsg:'努力加载中...',
+            scrollbarSize: 6,
             rownumbers: true,
             singleSelect: true,
-            showFooter: true,
             columns: [
                 [
                     {
@@ -60,7 +106,7 @@
                     {
                         width: orderDetailFixWidth(0.15),
                         field: 'num',
-                        align: 'right',
+                        align: 'center',
                         halign: 'center',
                         resizable: false,
                         title: '数量'
@@ -68,7 +114,7 @@
                     {
                         width: orderDetailFixWidth(0.23),
                         field: 'specs',
-                        align: 'right',
+                        align: 'center',
                         halign: 'center',
                         resizable: false,
                         title: '规格',
@@ -83,7 +129,7 @@
                     {
                         width: orderDetailFixWidth(0.22),
                         field: 'price',
-                        align: 'right',
+                        align: 'center',
                         halign: 'center',
                         resizable: false,
                         title: '小计(元)'
@@ -91,17 +137,26 @@
                 ]
             ],
             onLoadSuccess: function (data) {
-                // 删除已选菜品列表分隔线样式
-                // removeTableLines();
+                var rows = data.rows;
+                var num = 0;
+                for (var index in rows){
+                    var row = rows[index];
+                    num = new Number(num + new Number(row.num));
+                }
+                $('#orderDetailsFoodCountId').text(num);
+                $('#orderDetailsFoodTypeCountId').text(rows.length);
             }
         });
         // 实例化支付明细table
-        var payLogTable = $('#orderDetailsPayTableId').datagrid({
-            url: 'order/queryOrderPayLogByOrderId?orderId=' + orderId,
+        $('#orderDetailsPayTableId').datagrid({
+            url: 'order/queryOrderPayLogByOrderId',
+            queryParams:{
+                orderId: $('#orderDetailsOrderIDInputId').val()
+            },
             fitColumns: true,
-            scrollbarSize: 6,
+            loadMsg:'努力加载中...',
+            scrollbarSize: 0,
             singleSelect: true,
-            showFooter: true,
             rownumbers: true,
             columns: [
                 [
@@ -119,12 +174,10 @@
                         align: 'center',
                         halign: 'center',
                         resizable: false,
-                        title: '金额'
+                        title: '金额(元)'
                     }
                 ]
-            ],
-            // 删除支付记录列表分隔线样式
-            // $('#payLogTableId').datagrid('getPanel').removeClass('lines-bottom').addClass('lines-bottom');
+            ]
         });
     });
 </script>

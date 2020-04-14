@@ -316,28 +316,39 @@
                 };
                 break;
             case '自定义数量':
-                $.messager.prompt('编辑', '请输入菜品数量:', function(inVal){
-                    // 判断输入的是否为正整数
-                    if ((/(^[1-9]\d*$)/.test(inVal))) {
-                        // 是正整数
-                        var newNum = new Number(inVal);
-                        if(currSelect.num != newNum){
-                            // 计算新菜品价格
-                            var newPrice = new Number(new Number(foodInfo[2]) * newNum).toFixed(2);
-                            // 如果选中行数量不等于操作数，则更新选中行数量和价钱
-                            selectedFoodTable.datagrid('updateRow',{
-                                index: currIndex,
-                                row: {
-                                    num: newNum,
-                                    price: newPrice
-                                }
+                $.messager.prompt({
+                    ok:'确定',
+                    cancel:'取消',
+                    title:'编辑',
+                    msg:'请输入菜品数量',
+                    fn:function (inVal) {
+                        // 判断输入的是否为正整数
+                        if ((/(^[1-9]\d*$)/.test(inVal))) {
+                            // 是正整数
+                            var newNum = new Number(inVal);
+                            if(currSelect.num != newNum){
+                                // 计算新菜品价格
+                                var newPrice = new Number(new Number(foodInfo[2]) * newNum).toFixed(2);
+                                // 如果选中行数量不等于操作数，则更新选中行数量和价钱
+                                selectedFoodTable.datagrid('updateRow',{
+                                    index: currIndex,
+                                    row: {
+                                        num: newNum,
+                                        price: newPrice
+                                    }
+                                });
+                                // 更新底部合计区域
+                                updateFooterSum();
+                            };
+                        } else {
+                            // 否
+                            $.messager.alert({
+                                ok:'确定',
+                                title:'错误',
+                                msg:'操作失败，请输入正整数!',
+                                icon:'error'
                             });
-                            // 更新底部合计区域
-                            updateFooterSum();
-                        };
-                    } else {
-                        // 否
-                        $.messager.alert('错误','操作失败，请输入正整数!','error');
+                        }
                     }
                 });
                 break;
@@ -475,7 +486,7 @@
     // 实例化窗口组件
     var payWin = $('#orderPayWin').window({
         title:'结账',
-        width:fixWidth(0.5),
+        width:fixWidth(0.56),
         height:fixWidth(0.39),
         modal:true,
         collapsible:false,

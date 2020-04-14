@@ -143,7 +143,7 @@
     var payLogTable = $('#payLogTableId').datagrid({
         data: [],
         fitColumns: true,
-        scrollbarSize: 13,
+        scrollbarSize: 2,
         singleSelect: true,
         showFooter: true,
         rownumbers: true,
@@ -178,14 +178,16 @@
                     resizable: false,
                     title: '操作',
                     formatter: function (value, row, index) {
-                        return '<a href="#" name="operate" plain=true,iconCls="icon-cancel" class="easyui-linkbutton" ></a>';
+                        return '<a href="#" name="payOperateName" class="easyui-linkbutton" >删除</a>';
                     }
                 }
             ]
         ],
         onLoadSuccess: function (data) {
+            // 给详情按钮添加效果
+            $("a[name='payOperateName']").linkbutton({plain:true});
             // 每行操作绑定单击事件
-            $("a[name='operate']").bind('click',function () {
+            $("a[name='payOperateName']").bind('click',function () {
                 // 删除支付记录操作确认后需要还原原始金额
                 // 进行二次确认
                 $.messager.confirm('提示', '确定要删除该条支付记录吗?', function(oper){
@@ -201,7 +203,7 @@
                         // 已付金额
                         var paidMoney = $('#moneyPayPaidId').text();
                         // 已付金额 = 当前已付金额 - 删除部分的金额
-                        paidMoney = new Number(paidMoney.substring(1).trim()) - new Number(selectRow.payPrice.substring(1).trim()).toFixed(2);
+                        paidMoney = new Number(new Number(paidMoney.substring(1).trim()) - new Number(selectRow.payPrice.substring(1).trim())).toFixed(2);
                         // 从新计算未付金额 总金额 - 已付金额
                         var unPaidMoney = new Number(new Number(totalMoney.substring(1).trim()) - paidMoney).toFixed(2);
                         if(unPaidMoney < 0){

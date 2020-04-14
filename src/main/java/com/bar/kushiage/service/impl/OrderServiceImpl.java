@@ -166,7 +166,7 @@ public class OrderServiceImpl implements OrderService {
                 OrderPayLogVo vo = new OrderPayLogVo();
                 vo.setId(pay.getId() + "");
                 vo.setPayTypeText(PayTypeConstantEnum.getValueOf(pay.getPayType()).getNote());
-                vo.setPayPrice("￥ " + pay.getPayPrice());
+                vo.setPayPrice(pay.getPayPrice() + "");
                 rows.add(vo);
             });
         }

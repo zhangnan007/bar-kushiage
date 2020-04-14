@@ -133,11 +133,11 @@ public class OrderController {
      */
     @RequestMapping(value = "/queryOrderPayLogByOrderId")
     @ResponseBody
-    public Map<String, Object> queryOrderPayLogByOrderId(Long orderId) {
+    public Map<String, Object> queryOrderPayLogByOrderId(String orderId) {
         try {
             logger.info("order controller queryOrderPayLogByOrderId start");
-            if (orderId != null) {
-                Map<String, Object> result = orderService.queryOrderPayLogByOrderId(orderId);
+            if (StringUtils.isNotBlank(orderId)) {
+                Map<String, Object> result = orderService.queryOrderPayLogByOrderId(Long.parseLong(orderId));
                 return result;
             }
         } catch (Exception e) {

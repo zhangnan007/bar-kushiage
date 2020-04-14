@@ -2,9 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>叫号取餐</title>
 </head>
 <body>
-<h1>叫号取餐</h1>
+<style>
+    .meal-num-content-div{
+        width: 100%;
+        height: 39px;
+        /*text-align: center;*/
+        /*line-height: 39px;*/
+        font-size: 16px;
+        /*flex 布局*/
+        display: flex;
+        /*实现垂直居中*/
+        align-items: center;
+        /*实现水平居中*/
+        justify-content: center;
+    }
+</style>
+<div class="width: 100%;height: 100%">
+    <div id="mealNumContentId" class="meal-num-content-div">
+        <span>请第</span>
+        <input type="text" id="mealNumInputId" style="height: 90%;width: 30%">
+        <span>号，取餐</span>
+        <a href="#" id="callMealNumBtnId" class="easyui-linkbutton">叫号</a>
+    </div>
+</div>
+<script>
+    $(function () {
+        // 实例化取餐号录入组件
+        var mealNumInput = $('#mealNumInputId').numberbox({
+            min:0,
+        });
+        // 监听回车事件
+        $('#mealNumContentId').find('input').bind('keyup',function (event) {
+            if (event.keyCode == "13") {
+                //回车执行叫号按钮点击事件
+                $('#callMealNumBtnId').click();
+            }
+        });
+        // 叫号按钮绑定单击时间
+        $('#callMealNumBtnId').bind('click',function () {
+            // 获取输入框值
+            var mealNum = mealNumInput.numberbox('getValue');
+            // 重置输入框值
+            mealNumInput.numberbox('reset');
+            alert(mealNum);
+        });
+    });
+</script>
 </body>
 </html>
