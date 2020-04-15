@@ -33,6 +33,8 @@
         var mealNumInput = $('#mealNumInputId').numberbox({
             min:0,
         });
+		// 加载页面时完成时叫号录入框自动获取焦点
+		$('#mealNumInputId').focus();
         // 监听回车事件
         $('#mealNumContentId').find('input').bind('keyup',function (event) {
             if (event.keyCode == "13") {
