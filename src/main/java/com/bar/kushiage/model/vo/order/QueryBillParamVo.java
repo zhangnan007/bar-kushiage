@@ -18,5 +18,5 @@ public class QueryBillParamVo {
     private Timestamp startTime; // 后台逻辑用开始时间
     private Timestamp endTime; // 后台逻辑用结束时间
     private Integer pageNum = 1; // 当前页码
-    private Integer pageSize = 1; // 每页显示条数
+    private Integer pageSize = 20; // 每页显示条数
 }

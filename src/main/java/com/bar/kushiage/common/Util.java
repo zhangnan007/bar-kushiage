@@ -87,6 +87,7 @@ public class Util {
 
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 

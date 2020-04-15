@@ -9,23 +9,22 @@
     .meal-num-content-div{
         width: 100%;
         height: 39px;
-        /*text-align: center;*/
-        /*line-height: 39px;*/
         font-size: 16px;
+        text-align: center;
         /*flex 布局*/
-        display: flex;
+        /*display: flex;*/
         /*实现垂直居中*/
-        align-items: center;
+        /*align-items: center;*/
         /*实现水平居中*/
-        justify-content: center;
+        /*justify-content: center;*/
     }
 </style>
-<div class="width: 100%;height: 100%">
+<div style="width: 100%;height: 100%;display: flex;align-items: center;">
     <div id="mealNumContentId" class="meal-num-content-div">
         <span>请第</span>
-        <input type="text" id="mealNumInputId" style="height: 90%;width: 30%">
-        <span>号，取餐</span>
-        <a href="#" id="callMealNumBtnId" class="easyui-linkbutton">叫号</a>
+        <input type="text" id="mealNumInputId" />
+        <span>号，取餐啦</span>
+        <a href="#" id="callMealNumBtnId" class="easyui-linkbutton" style="width: 66px;margin-left: 15px;">叫号</a>
     </div>
 </div>
 <script>
@@ -45,9 +44,31 @@
         $('#callMealNumBtnId').bind('click',function () {
             // 获取输入框值
             var mealNum = mealNumInput.numberbox('getValue');
-            // 重置输入框值
-            mealNumInput.numberbox('reset');
-            alert(mealNum);
+            // 获取菜品类型，创建tabs
+            $.ajax({
+                //请求方式
+                type: "POST",
+                //请求地址
+                url: "takeMeal/callMealNum",
+                //数据，json字符串
+                data: {
+                    mealNum: mealNum
+                },
+                //请求成功
+                success: function (result) {
+                    if(result){
+                        // 重置输入框值
+                        mealNumInput.numberbox('reset');
+                    } else {
+                        $.messager.alert('提示','叫号失败，请重试','error');
+                    }
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e.status);
+                    console.log(e.responseText);
+                }
+            });
         });
     });
 </script>
